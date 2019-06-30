@@ -182,6 +182,15 @@ patterns }
 %	\end{figure}
 %}
 
+\newcommand{\aplot}[3]{
+	\begin{figure}[htbp!]
+		\center
+		\includegraphics[#2]{#1}
+		\caption{#3}
+		\label{fig:#1}
+	\end{figure}
+}
+
 \newcommand{\twplot}[3]{
 	\begin{figure}
 		\centering
