@@ -1,5 +1,5 @@
-\documentclass[paper,twocolomn]{geophysics}
-%\documentclass[manuscript]{geophysics}
+%\documentclass[paper,twocolomn]{geophysics}
+\documentclass[manuscript]{geophysics}
 %\documentclass[manuscript,endfloat]{geophysics}
 \input{myDefs}
 \graphicspath{{./Fig/}}
@@ -157,18 +157,42 @@ Third, for every new subsurface model we produce a distortion map \figref{deform
 
 The generator described above allows us to generate a set of models which to some extent mimic the layered geological structure from the Marmousi II model. Despite using a specific velocity reference, the generator produces diverse range of subsurface models which then might be fit into desired range of velocities. The main part of the transformation is local texture vertical repositioning. However, depending on smoothness of coordinate transformation new horizontal layers can be generated and old layers collapsed.
 
-\subsection{Modeling}
-To generate the respective seismic data we utilize Madagascar function "sfgenshots" - a cuda-based finite-difference solver. There are no principal limitations to the type of solver to be used. After that the shots are sorted into CMP gathers.
+\subsection{Seismic wave propagation}
+To generate seismic data in each random model we integrate Madagascar package into the workflow. We use a CUDA-accelerated acoustic finite-difference solver in time domain to numerically simulate seismic wave propagation and to record seismograms at each receiver for every source in the acquisition, \figref{X_scaled}.
 
+There are no principal limitations to the type of solver to be used. The proposed data-driven solution is capable of working with data of any complexity. Computational costs of modeling is the only obstacle.
 
-\subsection{Preprocessing}
-First we downsample and rescale the data
 \dplot{T_scaled}{X_scaled}{Scaled version of velocity logs. (b) scaled version of CMP gather. We utilize only positive offset as the data are synthetic and due to the reciprocity there is no difference with swaping source and receiver positions.}
-Here, following \citep{york2019}, we generate the data and try to learn the respective logs.
+
+
+% function "sfgenshots" - a cuda-based finite-difference solver. There are no principal limitations to the type of solver to be used. After that the shots are sorted into CMP gathers.
+
+\section{Deep learning framework}
+The general idea of deep learning is to build a mathematical model which would derive a desired non-linear relation directly from the data. Selection of a particular DL model is heavily motivated by the compound and attributes of the available data. 
+%	supervised learning
+In this study,  pairs of input CSGs and target well-logs \figref{in_out_shape} uniquely define the supervised learning paradigm as the most appropriate. At the training stage, a supervised model attempts to derive a relation which would link input and target variable for each pair in the training partition of the dataset . Whereas at the inference stage, the model infers target variables when given a sample from previously unseen test partition of the data.
 
 \aplot{in_out_shape}{width=0.7\columnwidth}{Shape of input and target data}
 
-\section{Deep learning}
+\subsection{Convolutional neural network}
+%   spatial dependency = convolutional
+Regular feed-forward neural networks such as multilayer perceptron are suitable for problems with relatively small size of input data as the number of parameters in them grows exponentially. When the input volume is image then networks with convolutional layers come into play. Convolutional layers perform convolution of the input volume with a set of filters which results in a set of feature maps, one corresponding for each filter respectively. The key feature of convolutional layer is that it features local connectivity. Meaning that when the filter slides over the input volume, only very few neighboring points contribute into particular point of the feature map. This feature allows such a network to learn spatial patterns and enforce them at the inference stage.
+
+\subsection{Preprocessing}
+Regardless of the type of the network, any
+%
+
+
+%	Preprocessing
+%		explain preprocessing
+%	explaing perks of conv 
+%	keras tensorflow
+
+
+
+
+Here, following \citep{york2019}, we generate the data and try to learn the respective logs.
+
 
 
 \section{Single CMP to single log}
