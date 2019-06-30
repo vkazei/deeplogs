@@ -179,7 +179,10 @@ In this study,  pairs of input CSGs and target well-logs \figref{in_out_shape} u
 Regular feed-forward neural networks such as multilayer perceptron are suitable for problems with relatively small size of input data as the number of parameters in them grows exponentially. When the input volume is image then networks with convolutional layers come into play. Convolutional layers perform convolution of the input volume with a set of filters which results in a set of feature maps, one corresponding for each filter respectively. The key feature of convolutional layer is that it features local connectivity. Meaning that when the filter slides over the input volume, only very few neighboring points contribute into particular point of the feature map. This feature allows such a network to learn spatial patterns and enforce them at the inference stage.
 
 \subsection{Preprocessing}
-Regardless of the type of the network, any
+Regardless of the type a DL model used in the application, proper normalization is required for each sample of the input and target data. Proper normalization makes data fit the range matching the bounds of activation functions as well as enforces even contribution of features into training. All these leads weight optimization to a better convergence at shorter time.
+
+In this study, we fit both input and target volumes into range $[-1, 1]$ as well as we set the zero mean.
+
 %
 
 
