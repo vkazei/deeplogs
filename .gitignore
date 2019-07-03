@@ -1,3 +1,17 @@
+salt_and_overthrust_models/
+data/check
+data/chk
+data/marm_local.rsfsxbeg=80
+data/shots
+data/time
+data/trained_net
+data/velocity_logs_from_seismic.py
+data/velocity_logs_from_seismic.slides.html
+data/vp_marmousi-ii.segy
+latex/Fig (copy)/
+latex/backup_structure.tex
+
+
 ## Core latex/pdflatex auxiliary files:
 data/.ipynb*
 *.pdf
