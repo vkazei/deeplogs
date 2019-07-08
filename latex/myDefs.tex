@@ -194,10 +194,10 @@ patterns }
 \newcommand{\twplot}[3]{
 	\begin{figure}
 		\centering
-		\subfigure[]{\includegraphics[width=0.5\columnwidth]{Fig/#1}
+		\subfigure[]{\includegraphics[width=0.4\columnwidth]{Fig/#1}
 			\label{fig:#1}}
 		\hspace*{-0.01\columnwidth}
-		\subfigure[]{\includegraphics[width=0.45\columnwidth]{Fig/#2}
+		\subfigure[]{\includegraphics[width=0.55\columnwidth]{Fig/#2}
 			\label{fig:#2}}
 		\caption{#3}
 		%\label{fig:#1}
@@ -250,22 +250,66 @@ patterns }
 	\end{figure}
 }
 
-\newcommand{\fplot}[5]{
+\newcommand{\ffplot}[5]{
 	\begin{figure}
 		\centering
-		\subfigure[]{\includegraphics[height=0.3\columnwidth]{Fig/#1}
+		\subfigure[]{\includegraphics[height=0.47\columnwidth]{Fig/#1}
 			\label{fig:#1}}
 		\hspace*{0.01\columnwidth}
-		\subfigure[]{\includegraphics[height=0.3\columnwidth]{Fig/#2}
+		\subfigure[]{\includegraphics[height=0.47\columnwidth]{Fig/#2}
 			\label{fig:#2}}
 		\hspace*{-0.01\columnwidth}
-		\subfigure[]{\includegraphics[height=0.3\columnwidth]{Fig/#3}
+		\subfigure[]{\includegraphics[height=0.47\columnwidth]{Fig/#3}
 			\label{fig:#3}}
 		\hspace*{0.01\columnwidth}
-		\subfigure[]{\includegraphics[height=0.3\columnwidth]{Fig/#4}
+		\subfigure[]{\includegraphics[height=0.47\columnwidth]{Fig/#4}
 			\label{fig:#4}}
 		\caption{#5}
 		\label{fig:#1:#4}\label{fig:#1_Full}
+		\vspace*{-0.03\columnwidth}
+	\end{figure}
+}
+
+\newcommand{\fplot}[5]{
+	\begin{figure}
+		\centering
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#1}
+			\label{fig:#1}}
+		\hspace*{0.01\columnwidth}
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#2}
+			\label{fig:#2}}
+		\hspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#3}
+			\label{fig:#3}}
+		\hspace*{0.01\columnwidth}
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#4}
+			\label{fig:#4}}
+		\caption{#5}
+		\label{fig:#1:#4}\label{fig:#1_Full}
+		\vspace*{-0.03\columnwidth}
+	\end{figure}
+}
+
+\newcommand{\splot}[7]{
+	\begin{figure}
+		\centering
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#1}
+			\label{fig:#1}}
+		\hspace*{0.01\columnwidth}
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#2}
+			\label{fig:#2}}
+		\hspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#3}
+			\label{fig:#3}}
+		\hspace*{0.01\columnwidth}
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#4}
+			\label{fig:#4}}
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#5}
+			\label{fig:#5}}
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#6}
+			\label{fig:#6}}
+		\caption{#7}
+		\label{fig:#1:#6}\label{fig:#1_Full}
 		\vspace*{-0.03\columnwidth}
 	\end{figure}
 }

@@ -1,3 +1,93 @@
+@article{dunford2014pareto,
+	title={The pareto principle},
+	author={Dunford, Rosie and Su, Quanrong and Tamang, Ekraj},
+	year={2014},
+	publisher={University of Plymouth}
+}
+
+@article{scikit-learn,
+	title={Scikit-learn: Machine Learning in {P}ython},
+	author={Pedregosa, F. and Varoquaux, G. and Gramfort, A. and Michel, V.
+	and Thirion, B. and Grisel, O. and Blondel, M. and Prettenhofer, P.
+	and Weiss, R. and Dubourg, V. and Vanderplas, J. and Passos, A. and
+	Cournapeau, D. and Brucher, M. and Perrot, M. and Duchesnay, E.},
+	journal={Journal of Machine Learning Research},
+	volume={12},
+	pages={2825--2830},
+	year={2011}
+}
+
+@article{dozat2016incorporating,
+	title={Incorporating nesterov momentum into adam},
+	author={Dozat, Timothy},
+	year={2016}
+}
+
+@article{mann1999common,
+	title={Common-reflection-surface stack—A real data example},
+	author={Mann, J{\"u}rgen and J{\"a}ger, Rainer and M{\"u}ller, Thilo and H{\"o}cht, German and Hubral, Peter},
+	journal={Journal of applied geophysics},
+	volume={42},
+	number={3-4},
+	pages={301--318},
+	year={1999},
+	publisher={Elsevier}
+}
+
+@article{gelchinsky1999multifocusing,
+	title={Multifocusing homeomorphic imaging: Part 1. Basic concepts and formulas},
+	author={Gelchinsky, Boris and Berkovitch, Alexander and Keydar, Shmariahu},
+	journal={Journal of applied geophysics},
+	volume={42},
+	number={3-4},
+	pages={229--242},
+	year={1999},
+	publisher={Elsevier}
+}
+
+@article{roth1994,
+	title = {Neural Networks and Inversion of Seismic Data},
+	volume = {99},
+	copyright = {Copyright 1994 by the American Geophysical Union.},
+	issn = {2156-2202},
+	abstract = {Neural networks can be viewed as applications that map one space, the input space, into some output space. In order to simulate the desired mapping the network has to go through a learning process consisting of an iterative change of the internal parameters, through the presentation of many input patterns and their corresponding output patterns. The training process is accomplished if the error between the computed output and the desired output pattern is minimal for all examples in the training set. The network will then simulate the desired mapping on the restricted domain of the training examples. We describe an experiment where a neural network is designed to accept a synthetic common shot gather (i.e., a set of seismograms obtained from a single source), as its input pattern and to compute the corresponding one-dimensional large-scale velocity model as its output. The subsurface models are built up of eight layers with constant layer thickness over a homogeneous half-space, 450 examples are used to train the network. After the training process the network never computes a subsurface model which perfectly fits the desired one, but the approximation of the network is sufficient to take this model as starting model for further seismic imaging algorithms. The trained network computes satisfactory velocity profiles for 80\% of the new seismic gathers not included in the training set. Although the network gives results that are stable when the input is contaminated with white noise, the network is not robust against strong, i.e., correlated, noise. This application proves that neural networks are able to solve nontrivial inverse problems.},
+	language = {en},
+	number = {B4},
+	journal = {Journal of Geophysical Research: Solid Earth},
+	doi = {10.1029/93JB01563},
+	author = {R\"oth, Gunter and Tarantola, Albert},
+	year = {1994},
+	pages = {6753-6768},
+	file = {/home/kazeiv/Zotero/storage/KH56Y2XT/Röth and Tarantola - 1994 - Neural networks and inversion of seismic data.pdf;/home/kazeiv/Zotero/storage/FR4DDSN2/93JB01563.html}
+}
+
+@article{li2019,
+	archivePrefix = {arXiv},
+	eprinttype = {arxiv},
+	eprint = {1901.07733},
+	primaryClass = {cs},
+	title = {Deep Learning {{Inversion}} of {{Seismic Data}}},
+	abstract = {In this paper, we propose a new method to tackle the mapping challenge from time-series data to spatial image in the field of seismic exploration, i.e., reconstructing the velocity model directly from seismic data by deep neural networks (DNNs). The conventional way to address this ill-posed seismic inversion problem is through iterative algorithms, which suffer from poor nonlinear mapping and strong non-uniqueness. Other attempts may either import human intervention errors or underuse seismic data. The challenge for DNNs mainly lies in the weak spatial correspondence, the uncertain reflection-reception relationship between seismic data and velocity model as well as the time-varying property of seismic data. To approach these challenges, we propose an end-to-end Seismic Inversion Networks (SeisInvNet for short) with novel components to make the best use of all seismic data. Specifically, we start with every seismic trace and enhance it with its neighborhood information, its observation setup and global context of its corresponding seismic profile. Then from enhanced seismic traces, the spatially aligned feature maps can be learned and further concatenated to reconstruct velocity model. In general, we let every seismic trace contribute to the reconstruction of the whole velocity model by finding spatial correspondence. The proposed SeisInvNet consistently produces improvements over the baselines and achieves promising performance on our proposed SeisInv dataset according to various evaluation metrics, and the inversion results are more consistent with the target from the aspects of velocity value, subsurface structure and geological interface. In addition to the superior performance, the mechanism is also carefully discussed, and some potential problems are identified for further study.},
+	journal = {arXiv:1901.07733 [cs]},
+	author = {Li, Shucai and Liu, Bin and Ren, Yuxiao and Chen, Yangkang and Yang, Senlin and Wang, Yunhai and Jiang, Peng},
+	month = jan,
+	year = {2019},
+	keywords = {Computer Science - Artificial Intelligence,Computer Science - Computer Vision and Pattern Recognition},
+	file = {/home/kazeiv/Zotero/storage/T89ZTCB7/Li et al. - 2019 - Deep learning Inversion of Seismic Data.pdf;/home/kazeiv/Zotero/storage/4E5XLMYF/1901.html}
+}
+
+@inproceedings{zheng2019,
+	title = {Elastic {{Pre}}-Stack {{Seismic Inversion}} in {{Stratified Media Using Machine Learning}}},
+	abstract = {The similarity between seismic inversion and machine learning lies in the fact that both are essentially optimization problems. This study describes a workflow in which the pre-stack seismic inversion is framed as a deep learning problem. The earth medium of interest is elastic with weak lateral variations. A convolutional neural network (CNN) is trained and tested on a set of synthetic earth models and seismic records. The trained network is then used to make predictions of subsurface elastic parameters directly from field data from a land survey. The predicted elastic parameters, even in the absence of low frequency content in the input seismic data, show a good match with the well logs. The P-wave velocity model appears to have better resolution and accuracy than the result derived from travel-time tomography. Adequate predictions from the CNN is achieved by the careful construction of training samples and the conditioning of seismic data so that the synthetic data used for training approximately represent the statistics of the geology and field data. The computational efficiency of using deep learning in such a way for waveform inversion may be desirable for elastic model building.},
+	language = {English},
+	booktitle = {81st {{EAGE Conference}} and {{Exhibition}} 2019},
+	doi = {10.3997/2214-4609.201901524},
+	author = {Zheng, Y.},
+	month = jun,
+	year = {2019},
+	file = {/home/kazeiv/Zotero/storage/2K8VB8NM/Zheng - 2019 - Elastic Pre-stack Seismic Inversion in Stratified .pdf;/home/kazeiv/Zotero/storage/6FC87LPP/publicationdetails.html}
+}
+
 @inproceedings{ruan2018global,
 	title={Global Adjoint Tomography-New Generation Earth Mantle Model},
 	author={Ruan, Y and Lei, W and Lefebvre, MP and Modrak, R and Smith, JA and Orsvuran, R and Bozdag, E and Chen, Y and Hill, J and Podhorszki, N and others},
