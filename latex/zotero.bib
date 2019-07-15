@@ -1,3 +1,121 @@
+@article{fomel2013madagascar,
+	title={Madagascar: Open-source software project for multidimensional data analysis and reproducible computational experiments},
+	author={Fomel, Sergey and Sava, Paul and Vlad, Ioan and Liu, Yang and Bashkardin, Vladimir},
+	journal={Journal of Open Research Software},
+	volume={1},
+	number={1},
+	year={2013},
+	publisher={Ubiquity Press}
+}
+
+@inproceedings{dramsch2019deep,
+	title={Deep Learning Application for 4D Pressure Saturation Inversion Compared to Bayesian Inversion on North Sea Data},
+	author={Dramsch, Jesper S{\"o}ren and Corte, Gustavo and Amini, Hamed and L{\"u}thje, Mikael and MacBeth, Colin},
+	booktitle={Second EAGE Workshop Practical Reservoir Monitoring 2019},
+	year={2019}
+}
+
+@article{zhang2019regularized,
+	author = {Zhendong Zhang  and  Tariq Alkhalifah },
+	title = {Regularized elastic full waveform inversion using deep learning},
+	journal = {GEOPHYSICS},
+	volume = {0},
+	number = {ja},
+	pages = {1-47},
+	year = {2019},
+	doi = {10.1190/geo2018-0685.1},
+	
+	URL = { 
+	https://doi.org/10.1190/geo2018-0685.1
+	
+	},
+	eprint = { 
+	https://doi.org/10.1190/geo2018-0685.1
+	
+	}
+	,
+	abstract = { Obtaining high resolution models of the Earth, especially around the reservoir, is crucial to properly imaging and interpreting the subsurface. We present a regularized elastic full waveform inversion method that uses facies as prior information. Deep neural networks are trained to estimate the distribution of facies in the subsurface. Here, we use facies extracted from wells as the prior information. Seismic data, well logs, and interpreted facies have different resolution and illumination to the subsurface. Besides, a physical process, such as anelasticity in the subsurface, is often too complicated to be fully considered. Therefore, there are often no explicit formulas to connect the data coming from different geophysical surveys. A deep learning method can find the statistically-correct connection without the need to know the complex physics. In our proposed deep learning scheme, we specifically use it to assist the inverse problem instead of the widely used labeling task. We first conduct an adaptive data-selection elastic full waveform inversion using the observed seismic data and obtain estimates of the subsurface, which do not need to be perfect. Then we use extracted facies information from the wells and force the estimated model to fit the facies by training deep neural networks. In this way, a list of facies is mapped to a 2D or 3D inverted model guided mainly by the structure features of the model. The multidimensional distribution of facies is used either as a regularization term or as an initial model for the next waveform inversion. The proposed method has two main features: 1) it applies to any kind of distributions of data samples and 2) it interpolates facies between wells guided by the structure of the estimated models. Results with synthetic and field data illustrate the benefits and limitations of this method. }
+}
+
+@article{ivanov2017traveltime,
+	title={Traveltime parameters in tilted orthorhombic medium},
+	author={Ivanov, Yuriy and Stovas, Alexey},
+	journal={Geophysics},
+	volume={82},
+	number={6},
+	pages={C187--C200},
+	year={2017},
+	publisher={Society of Exploration Geophysicists}
+}
+
+@article{kazei2019scattering,
+	title={Scattering Radiation Pattern Atlas: What anisotropic elastic properties can body waves resolve?},
+	author={Kazei, Vladimir and Alkhalifah, Tariq},
+	journal={Journal of Geophysical Research: Solid Earth},
+	volume={124},
+	number={3},
+	pages={2781--2811},
+	year={2019},
+	publisher={Wiley Online Library}
+}
+
+@inproceedings{skopintseva2019regularization,
+	title={Regularization in Full Waveform Inversion: OBC vs Streamer Data Results Over a Gas Cloud},
+	author={Skopintseva, L and Ravaut, C and Pedersen, {\O} and Maa{\o}, FA and Hartvigsen, KO},
+	booktitle={81st EAGE Conference and Exhibition 2019},
+	year={2019}
+}
+
+@inproceedings{oye2019velocity,
+	title={Velocity Model Building from Raw Shot Gathers Using Machine Learning},
+	author={{\O}ye, OK and Dahl, EK},
+	booktitle={81st EAGE Conference and Exhibition 2019},
+	year={2019}
+}
+
+@article{richardson2018seismic,
+	title={Seismic full-waveform inversion using deep learning tools and techniques},
+	author={Richardson, Alan},
+	journal={arXiv preprint arXiv:1801.07232},
+	year={2018}
+}
+
+@incollection{wu2018inversionnet,
+	title={InversionNet: Accurate and efficient seismic waveform inversion with convolutional neural networks},
+	author={Wu, Yue and Lin, Youzuo and Zhou, Zheng},
+	booktitle={SEG Technical Program Expanded Abstracts 2018},
+	pages={2096--2100},
+	year={2018},
+	publisher={Society of Exploration Geophysicists}
+}
+
+@article{zhang2018velocitygan,
+	title={VelocityGAN: Data-Driven Full-Waveform Inversion Using Conditional Adversarial Networks},
+	author={Zhang, Zhongping and Wu, Yue and Lin, Youzuo and Zhou, Zheng},
+	journal={arXiv preprint arXiv:1809.10262},
+	year={2018}
+}
+
+@article{yang2019deep,
+	title={Deep-learning inversion: a next generation seismic velocity-model building method},
+	author={Yang, Fangshu and Ma, Jianwei},
+	journal={Geophysics},
+	volume={84},
+	number={4},
+	pages={1--133},
+	year={2019},
+	publisher={Society of Exploration Geophysicists}
+}
+
+@inproceedings{ovcharenko2019style,
+	title={Style transfer for generation of realistically textured subsurface models},
+	author={Ovcharenko, Oleg and Kazei, Vladimir and Peter, Daniel and Alkhalifah, Tariq},
+	booktitle={SEG Technical Program Expanded Abstracts 2019},
+	year={2019},
+	publisher={Society of Exploration Geophysicists}
+}
+
+
 @inproceedings{simard2003best,
 	title={Best practices for convolutional neural networks applied to visual document analysis.},
 	author={Simard, Patrice Y and Steinkraus, David and Platt, John C and others},
@@ -2842,7 +2960,7 @@
   abstract = {ABSTRACT Conventional multi?source waveform inversion using an objective function based on the least?square misfit cannot be applied to marine streamer acquisition data because of inconsistent acquisition geometries between observed and modelled data. To apply the multi?source waveform inversion to marine streamer data, we use the global correlation between observed and modelled data as an alternative objective function. The new residual seismogram derived from the global correlation norm attenuates modelled data not supported by the configuration of observed data and thus, can be applied to multi?source waveform inversion of marine streamer data. We also show that the global correlation norm is theoretically the same as the least?square norm of the normalized wavefield. To efficiently calculate the gradient, our method employs a back?propagation algorithm similar to reverse?time migration based on the adjoint?state of the wave equation. In numerical examples, the multi?source waveform inversion using the global correlation norm results in better inversion results for marine streamer acquisition data than the conventional approach.},
   number = {4},
   journal = {Geophysical Prospecting},
-  author = {{Choi Yunseok} and {Alkhalifah Tariq}},
+  author = {Choi, Yunseok and Alkhalifah, Tariq},
   month = jun,
   year = {2012},
   keywords = {Global correlation,Marine streamer data,Modelled},
@@ -3008,6 +3126,7 @@
 @book{claerbout1985fundamentals,
 	title={Fundamentals of geophysical data processing},
 	author={Claerbout, Jon F},
+	year={1985},
 	publisher={Blackwell scientific publications}
 }
 
