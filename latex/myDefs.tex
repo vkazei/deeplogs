@@ -1,0 +1,399 @@
+\usepackage{amsmath,amssymb,amsfonts,graphicx,subfigure,bm,yfonts,hyperref,cleveref,xcolor}
+\usepackage{rotating}
+%\usepackage[outdir=./]{epstopdf}
+
+\usepackage{multirow}
+
+
+%%%%%%%%%                              DEFINITIONS START
+
+\def\cpar{$C_{ij},\rho$ parameterization~}
+\def\hpar{h-parameterization~}
+
+\newcommand{\todo}[1]{{\textbf {\color{red} #1}}}
+\newcommand{\done}[1]{{\bf {\color{green} #1}}}
+\newcommand{\connect}{{\textbf{\color{red} $<-$ Connect $->$ }}}
+
+
+\def\rmrk#1{{\textbf{[[#1]]}}}
+\def\rmrkok#1{}
+%\def\eqref#1{\ref{#1}}
+\def\eqrf#1{equation~\eqref{eq:#1}}
+%\def\eqref#1{equation~\ref{eq:#1}}
+\def\eq{equation~}
+\def\figref#1{Fig.~\ref{fig:#1}}
+\def\figrefp#1{(Fig.~\ref{fig:#1})}
+
+\def\fref#1{\ref{#1}}
+
+\def\rhoK{\hat{\rho}}
+\def\cK{\hat{c}}
+
+
+%\def\rmrk#1{{[\textcolor[rgb]{0,0,0.8}{#1}]}} % [blue]
+%\def\rmrkm#1{{\textbf{[[\textcolor[rgb]{{1.00,0.00,0.00}}{#1}]]}}}
+% _____________________________________________________________________________
+\def\mainauthor{Vladimir Kazei}
+\def\coauthorb{Ekkehart Tessmer}
+\def\coauthorc{}%Zedong Wu
+\def\coauthora{Tariq Alkhalifah}
+% - my definitions==============================================================================================
+
+\def\DP{Diffraction-based radiation 
+patterns }
+\def\dP{diffraction-based radiation 
+patterns }
+
+\def\nt{N}
+\newcommand{\Mod}[1]{\ (\mathrm{mod}\ #1)}
+\def\dv{\mathbf{d}}
+\def\Amat{\mathbb{A}}
+\def\Rmat{\mathbb{R}}
+\def\Umat{\mathbb{U}}
+\def\Smat{\mathbb{S}}
+\def\Vmat{\mathbb{V}}
+\def\SF{R}
+\def\xv{\mathbf{x}}
+\def\mv{\mathbf{m}}
+%\def\tmul{\otimes}
+\def\tmul{}
+\def\cv{\mathbf{c}}
+
+\def\sp{\varsigma}
+\def\spv{\bm{\sp}}
+\def\gp{\xi}
+\def\gpv{\bm{\gp}}
+
+\newcommand{\nmz}[1]{\mathbf{\bar{\text{$#1$}}}}
+%\def\nmz#1{\mathbf{\bar #1}}
+
+\def\Uv{\mathbf{U}}
+\def\kv{\mathbf{k}}
+\def\sv{\mathbf{s}}
+\def\svn{\mathbf{\bar{\sv}}}
+\def\Sv{\mathbf{S}}
+\def\Gv{\mathbf{G}}
+\def\Cv{\mathbf{C}}
+\def\ev{\mathbf{e}}
+\def\gv{\mathbf{g}}
+\def\gvn{\mathbf{\bar{\gv}}}
+\def\Av{\mathbf{A}}
+\def\Bv{\mathbf{B}}
+\def\uv{\mathbf{u}}
+\def\rv{\mathbf{r}}
+\def\dxv{\Delta \mathbf{x}}
+\def\Kv{\mathbf{K}}
+\def \cost{ \cos \frac{\theta}{2}}
+%\newcommand{\sdot}{\mathbf{\bullet}}
+
+\newcommand{\sdot}{{WI-WS, \delta \mv}}
+
+\newcommand{\inty}{\int\limits_{-\infty}^{+\infty}}
+\newcommand{\intyt}{\inty\inty\inty}
+\newcommand{\intyV}{\int\limits_{V}}
+
+\def\Rp{\mathcal{R}}
+\def\Dp{\mathcal{D}}
+\def\Tp{\mathcal{T}}
+%\def\Cp{\mathcal{C}}
+\def\Sp{\mathcal{S}}
+
+% - Tariq's definitions begin here ==============================================================================
+\def\beq{\begin{eqnarray}}
+\def\eeq{\end{eqnarray}}
+
+\def\mmbx#1{{\mathbf{#1}}}
+
+\def\phi{\varphi}
+
+\def\Vv{\mmbx{V}}
+\def\gammav{\pmb{\gamma}}
+\def\epsv{\pmb{\eps}}
+\def\deltav{\pmb{\delta}}
+\def\etav{\pmb{\eta}}
+
+\def\v{V}
+\def\rhov{\pmb{\rho}}
+\def\r{\mmbx{r}}
+\def\k{\mmbx{k}}
+
+\def\d{\text{d}}
+\def\c{\mmbx{c}}
+\def\e{\mmbx{e}}
+\def\m{\mmbx{m}}
+\def\x{\mmbx{x}}
+\def\xs{\x_s}
+\def\xr{\x_r}
+\def\L{\mmbx{L}}
+\def\p{\mmbx{p}}
+\def\q{\mmbx{q}}
+
+\def\La{{\cal L}}
+\def\tf{\tilde{f}}
+\def\tA{\tilde{A}}
+\def\ttau{\tilde{\tau}}
+\def\y{\mmbx{y}}
+\def\z{\mmbx{z}}
+
+\def\tm{\tilde{m}}
+\def\tr{\tilde{r}}
+\def\tw{\tilde{w}}
+\def\tv{\tilde{v}}
+\def\tp{\tilde{p}}
+\def\tq{\tilde{q}}
+
+\def\a{\mmbx{a}}
+\def\H{\mmbx{H}}
+\def\g{\mmbx{g}}
+\def\W{\mmbx{W}}
+
+\def\eps{\varepsilon}
+
+\def\La{{\cal L}}
+
+\def\tlambda{\tilde{\lambda}}
+\def\tw{\tilde{w}}
+
+\def\rvn{r_{v_n}}
+\def\rvh{r_{v_h}}
+\def\rrho{r_\rho}
+\def\rdel{r_\delta}
+\def\reta{r_\eta}
+\def\reps{r_\eps}
+
+
+\def\Re{{{\cal{R}}_e}}
+
+\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}}
+
+%==============================================end of Tariq's notation=========================================
+
+
+%%%%%%%%%								DEFINITIONS END
+\newcommand{\mylabel}[1]{\label{#1}}
+\newcommand{\myrf}[1]{\ref{#1}}
+
+%%\newcommand{\plot}[3]{
+%	\begin{figure}
+%		\center
+%		\includegraphics[#2]{Fig/#1}
+%		\caption{#3}
+%		\label{fig:#1}
+%	\end{figure}
+%}
+
+\newcommand{\aplot}[3]{
+	\begin{figure}[htbp!]
+		\center
+		\includegraphics[#2]{#1}
+		\caption{#3}
+		\label{fig:#1}
+	\end{figure}
+}
+
+\newcommand{\twplot}[3]{
+	\begin{figure}
+		\centering
+		\subfigure[]{\includegraphics[width=0.4\columnwidth]{Fig/#1}
+			\label{fig:#1}}
+		\hspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[width=0.55\columnwidth]{Fig/#2}
+			\label{fig:#2}}
+		\caption{#3}
+		%\label{fig:#1}
+	\end{figure}
+}
+
+\newcommand{\tplot}[4]{
+	\begin{figure}
+		\centering
+		\subfigure[]{\includegraphics[width=0.3\columnwidth]{Fig/#1}
+			\label{fig:#1}}
+		\vspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[width=0.3\columnwidth]{Fig/#2}
+			\label{fig:#2}}
+		\vspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[width=0.3\columnwidth]{Fig/#3}
+			\label{fig:#3}}
+		\caption{#4}
+		\label{fig:#1_#3}\label{fig:#1_Full}
+	\end{figure}
+}
+\newcommand{\tplott}[4]{
+	\begin{figure}
+		\centering
+		\subfigure[]{\includegraphics[width=0.2\columnwidth]{Fig/#1}
+			\label{fig:#1}}
+		\vspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[width=0.4\columnwidth]{Fig/#2}
+			\label{fig:#2}}
+		\vspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[width=0.3\columnwidth]{Fig/#3}
+			\label{fig:#3}}
+		\caption{#4}
+		\label{fig:#1_#3}\label{fig:#1_Full}
+	\end{figure}
+}
+\newcommand{\tplotv}[4]{
+	\begin{figure}
+		\centering
+		\subfigure[]{\includegraphics[width=0.49\columnwidth]{Fig/#1}
+			\label{fig:#1}}
+		\vspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[width=0.49\columnwidth]{Fig/#2}
+			\label{fig:#2}}
+		\vspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[width=0.49\columnwidth]{Fig/#3}
+			\label{fig:#3}}
+		\caption{#4}
+		\label{fig:#1_#3}\label{fig:#1_Full}
+	\end{figure}
+}
+
+\newcommand{\ffplot}[5]{
+	\begin{figure}
+		\centering
+		\subfigure[]{\includegraphics[height=0.47\columnwidth]{Fig/#1}
+			\label{fig:#1}}
+		\hspace*{0.01\columnwidth}
+		\subfigure[]{\includegraphics[height=0.47\columnwidth]{Fig/#2}
+			\label{fig:#2}}
+		\hspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[height=0.47\columnwidth]{Fig/#3}
+			\label{fig:#3}}
+		\hspace*{0.01\columnwidth}
+		\subfigure[]{\includegraphics[height=0.47\columnwidth]{Fig/#4}
+			\label{fig:#4}}
+		\caption{#5}
+		\label{fig:#1:#4}\label{fig:#1_Full}
+		\vspace*{-0.03\columnwidth}
+	\end{figure}
+}
+
+\newcommand{\fplot}[5]{
+	\begin{figure}
+		\centering
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#1}
+			\label{fig:#1}}
+		\hspace*{0.01\columnwidth}
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#2}
+			\label{fig:#2}}
+		\hspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#3}
+			\label{fig:#3}}
+		\hspace*{0.01\columnwidth}
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#4}
+			\label{fig:#4}}
+		\caption{#5}
+		\label{fig:#1:#4}\label{fig:#1_Full}
+		\vspace*{-0.03\columnwidth}
+	\end{figure}
+}
+
+\newcommand{\splot}[7]{
+	\begin{figure}
+		\centering
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#1}
+			\label{fig:#1}}
+		\hspace*{0.01\columnwidth}
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#2}
+			\label{fig:#2}}
+		\hspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#3}
+			\label{fig:#3}}
+		\hspace*{0.01\columnwidth}
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#4}
+			\label{fig:#4}}
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#5}
+			\label{fig:#5}}
+		\subfigure[]{\includegraphics[height=0.27\columnwidth]{Fig/#6}
+			\label{fig:#6}}
+		\caption{#7}
+		\label{fig:#1:#6}\label{fig:#1_Full}
+		\vspace*{-0.03\columnwidth}
+	\end{figure}
+}
+
+\newcommand{\fiPlot}[6]{
+	\begin{figure}
+		\centering
+		\subfigure[]{\includegraphics[width=0.31\columnwidth]{Fig/#1}
+			\label{fig:#1}}
+		\hspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[width=0.31\columnwidth]{Fig/#2}
+			\label{fig:#2}}
+		\hspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[width=0.31\columnwidth]{Fig/#3}
+			\label{fig:#3}}
+		\hspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[width=0.33\columnwidth]{Fig/#4}
+			\label{fig:#4}}
+		\subfigure[]{\includegraphics[width=0.33\columnwidth]{Fig/#5}
+			\label{fig:#5}}
+		\caption{#6}
+		\label{fig:#1:#5}\label{fig:#1_Full}
+	\end{figure}
+}
+
+\newcommand{\dplot}[3]{
+	\begin{figure}
+		\centering
+		\subfigure[]{\includegraphics[height=0.3\columnwidth]{Fig/#1}
+			\label{fig:#1}}
+		\hspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[height=0.3\columnwidth]{Fig/#2}
+			\label{fig:#2}}
+		\vspace*{-0.01\columnwidth}
+		\caption{#3}
+		\label{fig:#1:#2}\label{fig:#1_Full}
+	\end{figure}
+}
+
+\newcommand{\ddplot}[3]{
+	\begin{figure}
+		\centering
+		\subfigure[]{\includegraphics[width=0.7\columnwidth]{Fig/#1}
+			\label{fig:#1}}
+		\hspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[width=0.99\columnwidth]{Fig/#2}
+			\label{fig:#2}}
+		\vspace*{-0.01\columnwidth}
+		\caption{#3}
+		\label{fig:#1_#2}\label{fig:#1_Full}
+	\end{figure}
+}
+
+\def\ewidth{0.4}
+
+
+\newcommand{\eplot}[9]{
+	\begin{figure}
+		\centering
+		\subfigure[]{\includegraphics[width=\ewidth\columnwidth]{Fig/#1}
+			\label{fig:#1}}
+		\hspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[width=\ewidth\columnwidth]{Fig/#2}
+			\label{fig:#2}}
+		\hspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[width=\ewidth\columnwidth]{Fig/#3}
+			\label{fig:#3}}
+		\hspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[width=\ewidth\columnwidth]{Fig/#4}
+			\label{fig:#4}}
+		\hspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[width=\ewidth\columnwidth]{Fig/#5}
+			\label{fig:#5}}
+		\hspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[width=\ewidth\columnwidth]{Fig/#6}
+			\label{fig:#6}}
+		\hspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[width=\ewidth\columnwidth]{Fig/#7}
+			\label{fig:#7}}
+		\hspace*{-0.01\columnwidth}
+		\subfigure[]{\includegraphics[width=\ewidth\columnwidth]{Fig/#8}
+			\label{fig:#8}}
+		\caption{#9}
+		%\label{fig:#1}
+	\end{figure}
+}
+
