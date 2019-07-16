@@ -10,6 +10,8 @@ data/velocity_logs_from_seismic.slides.html
 data/vp_marmousi-ii.segy
 latex/Fig (copy)/
 latex/backup_structure.tex
+latex/Fig/test_*
+latex/Fig/train_*
 
 
 ## Core latex/pdflatex auxiliary files:
