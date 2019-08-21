@@ -413,7 +413,7 @@
     \ifthenelse{\boolean{@twoc}}{\twocolumn[\seg@author]}{\seg@author}}{}}
 \ifthenelse{\boolean{@manu}}{
   \renewenvironment{abstract}{\seg@author
-    \section{ABSTRACT}}{\newpage}
+    \section{}}{\newpage}
 }
 {
   \newsavebox{\seg@abstract}

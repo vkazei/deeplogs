@@ -1,5 +1,5 @@
-%\documentclass[paper,twocolomn]{geophysics}
-\documentclass[manuscript]{geophysics}
+\documentclass[paper,twocolomn]{geophysics}
+%\documentclass[manuscript]{geophysics}
 %\documentclass[manuscript,endfloat]{geophysics}
 \input{myDefs}
 \graphicspath{{./Fig/}}
@@ -11,9 +11,11 @@
 
 \renewcommand{\thefootnote}{\fnsymbol{footnote}} 
 
-\author{Vladimir Kazei\footnotemark[1], Oleg Ovcharenko, Pavel Plotnitskii, Daniel Peter, Xiangliang Zhang \& Tariq Alkhalifah}
+\author{Vladimir Kazei, Oleg Ovcharenko, Pavel Plotnitskii, Daniel Peter, Xiangliang Zhang \& Tariq Alkhalifah}
 \address{
-\footnotemark[1] KAUST, Saudi Arabia}
+King Abdullah University of Science and Technology (KAUST), Thuwal, 23955-6900, Saudi Arabia \\
+vladimir.kazei@kaust.edu.sa, oleg.ovcharenko@kaust.edu.sa, pavel.plotnitskii@kaust.edu.sa, \\
+daniel.peter@kaust.edu.sa, xiangliang.zhang@kaust.edu.sa, tariq.alkhalifah@kaust.edu.sa}
 \date{\today}
 
 \footer{submitted to Geophysics}
@@ -21,8 +23,12 @@
 \righthead{\emph{Velocity model building by deep learning}}
 
 \maketitle
+%\begin{abstract}
+%\end{abstract}
+%\end{document}
 
-\begin{abstract}
+\newpage
+\section{abstract}
 	Building realistic and reliable models of the subsurface is the primary goal of seismic imaging.
 	%
 	Full-waveform inversion (FWI) allows us to incorporate realistic physical descriptions of the Earth through modeling to deliver the highest resolution possible.
@@ -37,11 +43,12 @@
 	CNNs are trained to map the seismic data directly into velocity logs. This allows to integrate the well data and to simplify the mapping by using the regularity of active seismic acquisition. 
 	%
 	The main feature of our approach is the usage of neighboring common midpoint (CMP) gathers in the prediction of a log at the central CMP location. This allows us to accommodate larger dips compared to using single CMP gathers. At the same time, we still benefit from the regularity of sampling in seismic exploration.  
-\end{abstract}
+
 
 %% figure naming convention:
 %(train/test)_(prefix(singleCMP/multiCMP))_{folder(for train: ""=x1,x2,x3:marmvel1D, marmvel1D_distorted,marmvel,overthrust1D,overthrust2D)}_{inverted/true/X_scaled}
 
+\newpage
 \section{Introduction}
 % what is the problem? FWI needs better starting model
 % why FWI?
@@ -393,22 +400,51 @@ Finally, we test both CNNs on a slice from the Overthrust model (\figref{test_si
 
 
 
-\section{Discussion \& Conclusions}
+\section{Discussion}
 
 For regularly sampled seismic data acquisition that is typical in seismic exploration, the problem of full-waveform based velocity model building can be reduced to the search for mapping from 3D data (relevant traces) to 1D data (single velocity logs). This formulation is not a viable option for conventional FWI implementations as a velocity model needs to be optimized as a whole. Deep neural networks, on the other hand, are universal estimators and can be trained to map arbitrary input to target data samples as long as there is such a mapping. Therefore, training for the inference of particular velocity logs from data sets is a viable option for deep learning based velocity model inference.
 
 For a DL application, it is beneficial to split the whole data set into relevant and irrelevant data to speed up training. Therefore, we extracted the data (CMP gathers) from the neighboring area to the target vertical velocity profile location. We tried to infer this relation between these data and the respective velocity logs by using CNNs. In particular, we constructed two CNNs to infer this relation between the data and the vertical velocity profiles and analyzed their capabilities.
 
-The first CNN used single-CMP data as input, and the second CNN used multiple neighboring CMP gathers as input. We trained both neural networks on data modeled in augmentations of the Marmousi model by elastic deformations and cropping. The single-CMP CNN outperformed the multi-CMP CNN on laterally invariant models and models with mild velocity variations. On the other hand, the multi-CMP CNN had a better learning capacity and performed better on models with strong lateral variations. Both CNNs failed to construct a salt body, which suggests that the augmentations of the Marmousi model lead to limited capacity for generalization. So far we suggest that the same CNNs can be applied for geologically similar exploration scenarios. The training data set must be extended further to accommodate models that are geologically very different from the guiding model.   
+The first CNN used single-CMP data as input, and the second CNN used multiple neighboring CMP gathers as input. We trained both neural networks on data modeled in augmentations of the Marmousi model by elastic deformations and cropping. The single-CMP CNN outperformed the multi-CMP CNN on laterally invariant models and models with mild velocity variations. On the other hand, the multi-CMP CNN had a better learning capacity and performed better on models with strong lateral variations. Both CNNs failed to construct a salt body, which suggests that the augmentations of the Marmousi model lead to limited capacity for generalization. So far we suggest that the same CNNs can be applied for geologically similar exploration scenarios. The training data set must be extended further to accommodate models that are geologically very different from the guiding model. 
 
-The application of trained CNNs presented here takes less than 1ms per sample (CMP gather). Therefore, with these CNNs, velocity models can be built much faster than they are currently built. The velocity models would also be built automatically from raw recorded waveforms. The resolution of the built models is comparable to traveltime tomographic models rather than FWI models. However, the models built in this way will be useful as starting models for FWI. Several instances of trained neural networks would naturally provide an ensemble of starting models for the FWI uncertainty analysis. 
+The application of trained CNNs presented here takes less than 1ms per sample (CMP gather). Therefore, with these CNNs, velocity models can be built much faster than they are currently built. The velocity models would also be built automatically from raw recorded waveforms. The resolution of the built models is comparable to traveltime tomographic models rather than FWI models. However, the models built in this way will be useful as starting models for FWI. Several instances of trained neural networks naturally provide an ensemble of starting models for the FWI uncertainty analysis.
+
+This paper is a reproducible document. All related code can be found at \\ \href{https://github.com/vkazei/deeplogs}{https://github.com/vkazei/deeplogs}.
+
+\section{Conclusion}
+
+Deep learning allowed us to predict the mapping between raw seismic data (multi-CMP gathers) and vertical velocity profiles. This mapping is represented by trained purely convolutional neural networks (CNNs). Namely, we trained CNNs to map the relevant data cubes to 1D velocity profiles, rather than full velocity models. This is a key feature of our method that reduces the complexity of the training process and opens an opportunity for direct usage of the sonic logs for velocity-model building with deep learning.
+ 
+Just like full-waveform inversion our method relies on full-waveform modeling and utilizes all available data. Therefore, there are no principal limitations to the complexity of models that can be inverted. Just like in FWI some prior assumptions about the velocity model are necessary to mitigate non-uniqueness in seismic inversion. These assumptions can easily be incorporated into the training set. Every application of conventional FWI requires numerous forward problem solutions in order to perform the model optimization. Every new application of trained neural networks is nearly instant. Therefore, once the network is trained on a data set with particular prior assumptions, similar data sets can be inverted much faster than with conventional FWI, and with higher resolution information.
+
+
+
+%Therefore, if a neural network is trained on sufficiently representative of the geologic region set of models it can potentially replace other full-waveform based velocity model building methods. bringing us one step closer to real-time velocity model building with uncertainty quantification.
+
+
+
+
+%The mapping in the form of a trained CNN allows us to build velocity models directly from surface seismic data.
+
+
+ 
+%We constructed and trained two purely convolutional CNNs that map the relevant data to 1D vertical velocity profiles. Multi-CMP CNN has better capabilities to learn complex models, while single-CMP CNN works better for velocity models with mild velocity variations. 
+
+
+
+
+%Training of neural networks is a computationally intensive process. 
+%
+
 
 \section{ACKNOWLEDGMENTS}
 
 We thank members of the Seismic Modeling and Inversion group (SMI) and the Seismic Wave Analysis Group (SWAG) at KAUST for constructive discussions. We also thank Saudi Aramco for support.
 The research reported in this publication was supported by funding from King Abdullah University of Science and Technology (KAUST), Thuwal, 23955-6900, Saudi Arabia.
 %
-This paper is a reproducible document. All related code can be found at \href{https://github.com/vkazei/deeplogs}{https://github.com/vkazei/deeplogs}.
+\newpage
+
 
 
 %\append{Appendix example}
