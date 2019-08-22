@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 \documentclass[paper,twocolomn]{geophysics}
 %\documentclass[manuscript]{geophysics}
+=======
+%\documentclass[paper,twocolomn]{geophysics}
+\documentclass[manuscript]{geophysics}
+>>>>>>> e979cf484bb4664fd83a2f649ef47ea4f19063cd
 %\documentclass[manuscript,endfloat]{geophysics}
 \input{myDefs}
 \graphicspath{{./Fig/}}
@@ -11,11 +16,17 @@
 
 \renewcommand{\thefootnote}{\fnsymbol{footnote}} 
 
+<<<<<<< HEAD
 \author{Vladimir Kazei, Oleg Ovcharenko, Pavel Plotnitskii, Daniel Peter, Xiangliang Zhang \& Tariq Alkhalifah}
 \address{
 King Abdullah University of Science and Technology (KAUST), Thuwal, 23955-6900, Saudi Arabia \\
 vladimir.kazei@kaust.edu.sa, oleg.ovcharenko@kaust.edu.sa, pavel.plotnitskii@kaust.edu.sa, \\
 daniel.peter@kaust.edu.sa, xiangliang.zhang@kaust.edu.sa, tariq.alkhalifah@kaust.edu.sa}
+=======
+\author{Vladimir Kazei\footnotemark[1], Oleg Ovcharenko, Pavel Plotnitskii, Daniel Peter, Xiangliang Zhang \& Tariq Alkhalifah}
+\address{
+\footnotemark[1] KAUST, Saudi Arabia}
+>>>>>>> e979cf484bb4664fd83a2f649ef47ea4f19063cd
 \date{\today}
 
 \footer{submitted to Geophysics}
@@ -23,12 +34,17 @@ daniel.peter@kaust.edu.sa, xiangliang.zhang@kaust.edu.sa, tariq.alkhalifah@kaust
 \righthead{\emph{Velocity model building by deep learning}}
 
 \maketitle
+<<<<<<< HEAD
 %\begin{abstract}
 %\end{abstract}
 %\end{document}
 
 \newpage
 \section{abstract}
+=======
+
+\begin{abstract}
+>>>>>>> e979cf484bb4664fd83a2f649ef47ea4f19063cd
 	Building realistic and reliable models of the subsurface is the primary goal of seismic imaging.
 	%
 	Full-waveform inversion (FWI) allows us to incorporate realistic physical descriptions of the Earth through modeling to deliver the highest resolution possible.
@@ -43,12 +59,19 @@ daniel.peter@kaust.edu.sa, xiangliang.zhang@kaust.edu.sa, tariq.alkhalifah@kaust
 	CNNs are trained to map the seismic data directly into velocity logs. This allows to integrate the well data and to simplify the mapping by using the regularity of active seismic acquisition. 
 	%
 	The main feature of our approach is the usage of neighboring common midpoint (CMP) gathers in the prediction of a log at the central CMP location. This allows us to accommodate larger dips compared to using single CMP gathers. At the same time, we still benefit from the regularity of sampling in seismic exploration.  
+<<<<<<< HEAD
 
+=======
+\end{abstract}
+>>>>>>> e979cf484bb4664fd83a2f649ef47ea4f19063cd
 
 %% figure naming convention:
 %(train/test)_(prefix(singleCMP/multiCMP))_{folder(for train: ""=x1,x2,x3:marmvel1D, marmvel1D_distorted,marmvel,overthrust1D,overthrust2D)}_{inverted/true/X_scaled}
 
+<<<<<<< HEAD
 \newpage
+=======
+>>>>>>> e979cf484bb4664fd83a2f649ef47ea4f19063cd
 \section{Introduction}
 % what is the problem? FWI needs better starting model
 % why FWI?
