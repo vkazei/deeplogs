@@ -5,7 +5,8 @@ This repository reproduces the results of the paper:
 
 Kazei, V., Ovcharenko, O., Zhang, X., Peter, D. & Alkhalifah, T. 
 **"Mapping seismic data cubes to vertical velocity profiles by deep learning: New full-waveform inversion paradigm?"**,
-Geophysics, submitted (2019) 
+Geophysics, submitted (2019)
+[https://repository.kaust.edu.sa/handle/10754/656082]
 
 Run:
 
