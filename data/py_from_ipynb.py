@@ -10,6 +10,7 @@ import sys
 import time
 import pickle
 import threading
+import random
 
 # learning
 import keras
@@ -39,7 +40,7 @@ from skimage.transform import resize
 
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.model_selection import train_test_split
-import styler
+#import styler
 from myutils import cd, cmd, const, elastic_transform, plt_nb_T, toc, aug_flip, merge_dict, np_to_rsf, rsf_to_np, nrms
 
 seed()
@@ -66,8 +67,6 @@ stretch_X_train = 1
 alpha_deform = 500
 sigma_deform = 100
 tic_total = time.time()
-
-plt_nb_T(rsf_to_np("marmvel/logs_test.rsf"))
 
 #%% [markdown]
 # ## Introduction
@@ -122,8 +121,9 @@ plt_nb_T(rsf_to_np("marmvel/logs_test.rsf"))
 #    First we create model by augmenting Marmousi II
 
 
-def generate_model(model_input=const.trmodel, dx=const.dx, 
+def generate_model(model_input=const.trmodel, 
                    model_output="marm.rsf",
+                   dx=const.dx,
                    stretch_X=1,
                    training_flag=False,
                    random_state_number=const.random_state_number,                  
@@ -131,9 +131,29 @@ def generate_model(model_input=const.trmodel, dx=const.dx,
     # downscale marmousi
     #def rescale_to_dx(rsf_file_in, rsf_file_out, dx)
     model_orig = sf.Input(model_input)
+    vel = model_orig.read()
+    vel = np.concatenate((vel, np.flipud(vel), vel), axis = 0)
+    if distort_flag:
+        vel_log_res = vel
+        #vel_log_res = resize(vel_log_res[:,:], (np.shape(vel)[0]//2, np.shape(vel)[1]//2))
+        print(f"Random state number = {random_state_number}")
+        #vel = resize(vel_log_res, vel.shape)
+        np.random.RandomState(random_state_number)
+        print(random_state_number)
+        l0 = randint(np.shape(vel)[0])
+       
+        h0 = min(l0 + np.shape(vel)[0]//4 + randint(np.shape(vel)[0]//2), 
+                 np.shape(vel)[0])
+        l1 = randint(np.shape(vel)[1]//3)
+        h1 = min(l1 + np.shape(vel)[1]//3 + randint(np.shape(vel)[1]//2), 
+                 np.shape(vel)[1])
+        print(l0, l1, h0, h1)
+        vel_log_res = vel_log_res[l0:h0, l1:h1]
+        
+        vel = resize(vel_log_res, vel.shape)
     # we downscale
     scale_factor = dx / model_orig.float("d1")
-    vel = model_orig.read()
+    
     print(np.shape(vel))
     vel = resize(vel[:,:], (stretch_X*np.shape(vel)[0]//scale_factor, np.shape(vel)[1]//scale_factor))
     print(f"Model downscaled {scale_factor} times to {dx} meter sampling")
@@ -141,30 +161,15 @@ def generate_model(model_input=const.trmodel, dx=const.dx,
         print(f"Model stretched {stretch_X} times to {dx} meter sampling \n")
     
     # we concatenate horizontally, this is confusing because of flipped axis in madagascar
-    vel = np.concatenate((vel, np.flipud(vel), vel), axis = 0)
+    
     vel = np.atleast_3d(vel)
     
     if distort_flag:
-        vel_log_res = vel
-        #vel_log_res = resize(vel_log_res[:,:], (np.shape(vel)[0]//2, np.shape(vel)[1]//2))
-        print(f"Random state number = {random_state_number}")
-        vel_log_res = elastic_transform(vel_log_res, alpha_deform, sigma_deform, random_state_number=random_state_number)
-        #vel = resize(vel_log_res, vel.shape)
-        np.random.RandomState(random_state_number)
-        print(random_state_number)
-        l0 = randint(np.shape(vel)[0]//2)
-       
-        h0 = min(l0 + np.shape(vel)[0]//4 + randint(np.shape(vel)[0]//2), 
-                 np.shape(vel)[0])
-        l1 = randint(np.shape(vel)[1]//2)
-        h1 = min(l1 + np.shape(vel)[1]//4 + randint(np.shape(vel)[1]//2), 
-                 np.shape(vel)[1])
-        print(l0, l1, h0, h1)
-        #vel_log_res = vel_log_res[l0:h0, :]
-        
-        vel = resize(vel_log_res, vel.shape)
         vel = elastic_transform(vel, alpha_deform, sigma_deform, v_dx=dx, random_state_number=random_state_number)
     vel = np.squeeze(vel)
+    vel_alpha = (0.9+0.2*random.random())
+    print(vel_alpha)
+    vel *= vel_alpha
     # add water
     # vel = np.concatenate((1500*np.ones((vel.shape[0], 20)), vel), 
     #                      axis=1)
@@ -174,45 +179,47 @@ def generate_model(model_input=const.trmodel, dx=const.dx,
     np_to_rsf(vel, model_output)
     return vel
 
-vel = generate_model(stretch_X=stretch_X_train, training_flag=False)
+vel = generate_model(stretch_X=stretch_X_train, training_flag=False, random_state_number=randint(10000))
 plt_nb_T(vel)
+
+#%%
+# Stretched Marmousi
+
+vel = generate_model(stretch_X=stretch_X_train, distort_flag = False)
+plt_nb_T(vel, fname="../latex/Fig/stretchMarm")
+N = np.shape(vel)
 
 
 #%%
-
-# #%%
-# # Stretched Marmousi
-
-# vel = generate_model(stretch_X=stretch_X_train, distort_flag = False)
-# plt_nb_T(vel, fname="../latex/Fig/stretchMarm")
-# N = np.shape(vel)
+# vel_example = elastic_transform(np.atleast_3d(vel), alpha_deform//2, sigma_deform, 
+#                                 random_state_number=const.random_state_number, plot_name="Mild")
+# vel_example = elastic_transform(np.atleast_3d(vel), alpha_deform, sigma_deform, 
+#                                 random_state_number=const.random_state_number, plot_name="Normal")
 
 
-# #%%
-# vel_example = elastic_transform(np.atleast_3d(vel), alpha_deform//2, sigma_deform, random_state_number=random_state_number, plot_name="Mild")
-# vel_example = elastic_transform(np.atleast_3d(vel), alpha_deform, sigma_deform, random_state_number=random_state_number, plot_name="Normal")
+#vel_example = elastic_transform(np.atleast_3d(vel), 
+#                                alpha_deform, sigma_deform, 
+#                                random_state_number=random_state_number, 
+#                                plot_name="Normal")
+vel_example = generate_model(stretch_X=stretch_X_train, training_flag=True, random_state_number=const.random_state_number)
+vel1 = generate_model(stretch_X=stretch_X_train, training_flag=False, random_state_number=randint(10000))
+vel2 = generate_model(stretch_X=stretch_X_train, training_flag=False, random_state_number=randint(10000))
+vel3 = generate_model(stretch_X=stretch_X_train, training_flag=False, random_state_number=randint(10000))
+vel4 = generate_model(stretch_X=stretch_X_train, training_flag=False, random_state_number=randint(10000))
+plt_nb_T(np.concatenate((vel_example, vel1, vel2, vel3, vel4), axis=1), fname="../latex/Fig/random_model_example")
 
-
-# #vel_example = elastic_transform(np.atleast_3d(vel), 
-# #                                alpha_deform, sigma_deform, 
-# #                                random_state_number=random_state_number, 
-# #                                plot_name="Normal")
-# vel_example = generate_model(stretch_X=stretch_X_train, training_flag=True, random_state_number=random_state_number)
-# vel_example = ndimage.median_filter(vel_example, size=(100,5))
-# plt_nb_T(vel_example, fname="../latex/Fig/random_model_example")
-
-# #%% [markdown]
-# # ## Gaussian fields to generate a coordinate shift for laterally smooth models
-# # 
-# # 
-# # 
-# # ### Large correlation radius in horizontal direction -- to keep it almost horizontally layered
-# # 
-# # ### Small correlation radius in vertical direction -- to make it represent different layering scenarios
-# # 
-# # ### Same parameters but different fields for horizontal and vertical components
-# # 
-# # ### Large vertical shifts and small horizontal -- to keep it laterally slowly varying
+#%% [markdown]
+# ## Gaussian fields to generate a coordinate shift for laterally smooth models
+# 
+# 
+# 
+# ### Large correlation radius in horizontal direction -- to keep it almost horizontally layered
+# 
+# ### Small correlation radius in vertical direction -- to make it represent different layering scenarios
+# 
+# ### Same parameters but different fields for horizontal and vertical components
+# 
+# ### Large vertical shifts and small horizontal -- to keep it laterally slowly varying
 
 
 
@@ -263,7 +270,7 @@ szbeg = const.szbeg
 
 
 # model data and sort into CMPs function
-def generate_rsf_data(model_name="marm.rsf", central_freq=central_freq, dt=dt, 
+def generate_rsf_data(model_name="marm.rsf", central_freq=central_freq, dt=dt, dx=const.dx, 
                         nt=nt, sxbeg=sxbeg, gxbeg=gxbeg, szbeg=szbeg, 
                         jsx=jsx, jgx=jgx, jdt=jdt,
                         logs_out="logs.rsf", shots_out="shots_cmp.rsf",
@@ -286,9 +293,11 @@ def generate_rsf_data(model_name="marm.rsf", central_freq=central_freq, dt=dt,
 
     #   ## Analyze and filter the data set generated
     # correct header and reduce sampling in time jdt (usually 4) times
-    cmd(f"sfput < shots.rsf d3={jgx*dx} | sfwindow j1={jdt} > shots_decimated.rsf")
+    cmd(f"sfput < shots.rsf d3={jgx*dx} | sfwindow j1={jdt} | sfbandpass flo=2 fhi=4 > shots_decimated.rsf")
+    cmd(f"sfrm shots.rsf")
     # sort into cmp gathers and discard odd cmps and not full cmps
     cmd(f"sfshot2cmp < shots_decimated.rsf half=n | sfwindow j3=2 min3={(-1.5*gxbeg+1.5*sxbeg)*dx} max3={(Nx-(2.5*sxbeg-.5*gxbeg))*dx} > {shots_out}")
+    cmd(f"sfrm shots_decimated.rsf")
     # create the logs -- training outputs
     cmd(f"sfwindow < {model_name} min2={(-gxbeg+2*sxbeg)*dx} j2={jsx} max2={(Nx-(2*sxbeg-gxbeg))*dx} > {logs_out}")
     cmd(f"sfin < {logs_out}")
@@ -306,9 +315,9 @@ def generate_rsf_data_multi(model_name="marm.rsf", central_freq=central_freq, dt
     cmd(f"mkdir data_{iShotBlock}")
     seed()
     #cmd(f"sfwindow < overthrust3D.hh n3=120 f1={iShotBlock*randint(0,1e7) % 400} n1=1 | sftransp | sfadd scale=1000 | sfput d1=25 d2=25 --out=stdout > data_{iShotBlock}/overthrust2D.hh")
-    cmd(f"cp {const.trmodel} data_{iShotBlock}/")
+    #cmd(f"cp {const.trmodel} data_{iShotBlock}/")
     with cd(f"data_{iShotBlock}"):
-        _vel = generate_model(model_input=const.trmodel, random_state_number=(iShotBlock + randint(0,1e7)))
+        _vel = generate_model(model_input=f"../{const.trmodel}", random_state_number=(iShotBlock + randint(0,1e7)))
         #plt_nb_T(_vel)
         generate_rsf_data()
 
@@ -381,7 +390,7 @@ plt_nb_T(X_data[:,-3,:,0], title="Common offset (600 m) gather", dx=const.dx*jgx
 T_scaler = MinMaxScaler([-1,1])
 T_scaler.fit(T_data)
 T_scaled = T_scaler.transform(T_data)
-
+#T_scaled = T_data/1e3
 
 def scale_X_data(X_data_test=X_data, X_scaler=None):
     generate_scaler = False
@@ -395,10 +404,10 @@ def scale_X_data(X_data_test=X_data, X_scaler=None):
         X_matrix = X_data_cut.reshape([X_data_cut.shape[0], -1])
         X_scaler.fit(X_matrix)
         #X_scaler.scale_=np.ones_like(X_scaler.scale_)
-        plt_nb_T(1e3*X_scaler.scale_.reshape([X_data_cut.shape[1], -1]), title="Scale")
+        plt_nb_T(np.flipud(1e3*X_scaler.scale_.reshape([X_data_cut.shape[1], -1])), title="Scale",ylabel="Time(s)", dx=200, dz=1e3*dt*jdt, cbar_label="", fname="../latex/Fig/X_scale")
 
-        plt_nb_T(1e3*X_scaler.mean_.reshape([X_data_cut.shape[1], -1]), title="Mean")
-        plt_nb_T(np.log(X_scaler.var_.reshape([X_data_cut.shape[1], -1])), title="Variance")
+        plt_nb_T(np.flipud(1e3*X_scaler.mean_.reshape([X_data_cut.shape[1], -1])), title="Mean", ylabel="Time(s)", dx=200, dz=1e3*dt*jdt, cbar_label="", fname="../latex/Fig/X_mean")
+        plt_nb_T(np.flipud(np.log(X_scaler.var_.reshape([X_data_cut.shape[1], -1]))), title="Variance", ylabel="Time(s)", dx=200, dz=1e3*dt*jdt, cbar_label="", fname="../latex/Fig/X_log_var")
 
     X_data_test = X_data_test[:,:-3,:,:]
     X_matrix_test = X_data_test.reshape([X_data_test.shape[0], -1])
@@ -463,7 +472,10 @@ T_scaled = T_scaled_multi
 sample_reveal = nCMP
 plt_nb_T(1e3*np.concatenate((np.squeeze(X_scaled_multi[sample_reveal,:,:,-1]), np.flipud(np.squeeze(X_scaled_multi[sample_reveal,:,:,0]))), axis=0),
         title="CMP first | CMP last", dx=200, dz=1e3*dt*jdt, 
-        origin_in_middle=True, ylabel="Time(s)", fname="../latex/Fig/X_scaled")
+        origin_in_middle=True, ylabel="Time(s)", fname="../latex/Fig/X_scaled", cbar_label = "")
+plt_nb_T(1e3*np.concatenate((np.squeeze(X_data[sample_reveal,:,:]), np.flipud(np.squeeze(X_data[sample_reveal+nCMP,:,:]))), axis=0),
+        title="CMP first | CMP last", dx=200, dz=1e3*dt*jdt, 
+        origin_in_middle=True, ylabel="Time(s)", fname="../latex/Fig/X_raw", cbar_label = "")
 print(np.shape(1e3*T_scaled[sample_reveal-(nCMP+1)//2:sample_reveal+(nCMP-1)//2:nCMP]))
 
 plt_nb_T(1e3*T_data[sample_reveal-(nCMP-1)//2:sample_reveal+(nCMP-1)//2,:], 
@@ -486,30 +498,50 @@ def create_model(inp_shape, out_shape, jlogz=jlogz):
     activation = 'elu'
     activation_dense = activation
     padding = 'same'
-    dropout = 0.1
-    model.add(Conv2D(filters=16, kernel_size=(5, 21), strides=(2,2), activation=activation, padding=padding, input_shape=inp_shape))
+    kernel_size = (3, 7)
+    model.add(Conv2D(filters=32, kernel_size=kernel_size, activation=activation, padding=padding, input_shape=inp_shape))
     model.add(BatchNormalization())      
-    model.add(Conv2D(filters=32, kernel_size=(5, 11), strides=(1,2), activation=activation, padding=padding))       
+    model.add(Conv2D(filters=32, kernel_size=kernel_size, strides=(2,2), activation=activation, padding=padding))       
     model.add(BatchNormalization())
-    model.add(Conv2D(filters=64, kernel_size=(7, 11), strides=(1,2), activation=activation, padding=padding))
+    model.add(Conv2D(filters=64, kernel_size=kernel_size, activation=activation, padding=padding))
     model.add(BatchNormalization())
-    model.add(Conv2D(filters=128, kernel_size=(5, 5), strides=(2,1), activation=activation, padding=padding))
+    model.add(Conv2D(filters=64, kernel_size=kernel_size, strides=(2,2), activation=activation, padding=padding))
     model.add(BatchNormalization())
-    model.add(Conv2D(filters=64, kernel_size=(5, 5), strides=(2,1), activation=activation, padding=padding))
+    model.add(Conv2D(filters=128, kernel_size=kernel_size, activation=activation, padding=padding))
     model.add(BatchNormalization())
-    model.add(Conv2D(filters=32, kernel_size=(3, 11), activation=activation, padding="valid"))
+    model.add(Conv2D(filters=128, kernel_size=kernel_size, strides=(2,2), activation=activation, padding=padding))
     model.add(BatchNormalization())
-    model.add(Conv2D(filters=16, kernel_size=(3, 7), activation=activation, padding=padding))
+    model.add(Conv2D(filters=64, kernel_size=kernel_size, activation=activation, padding=padding))
     model.add(BatchNormalization())
-    model.add(Conv2D(filters=4, kernel_size=(5, 5), activation=activation, padding=padding))
+    model.add(Conv2D(filters=64, kernel_size=kernel_size, activation=activation, padding=padding))
     model.add(BatchNormalization())
-    model.add(Conv2D(filters=1, kernel_size=(5, 5), activation=activation, padding=padding))
+    model.add(Conv2D(filters=32, kernel_size=kernel_size, activation=activation, padding=padding))
+    model.add(BatchNormalization())
+    model.add(Conv2D(filters=32, kernel_size=kernel_size, activation=activation, padding=padding))
+    model.add(BatchNormalization())
+    model.add(Conv2D(filters=16, kernel_size=kernel_size, activation=activation, padding=padding))
+    model.add(BatchNormalization())
+    model.add(Conv2D(filters=16, kernel_size=kernel_size, activation=activation, padding=padding))
+    model.add(BatchNormalization())
+    model.add(Conv2D(filters=8, kernel_size=kernel_size, activation=activation, padding=padding))
+    model.add(BatchNormalization())
+    model.add(Conv2D(filters=8, kernel_size=kernel_size, activation=activation, padding=padding))
+    model.add(BatchNormalization())
+    model.add(Conv2D(filters=4, kernel_size=kernel_size, activation=activation, padding=padding))
+    model.add(BatchNormalization())
+    model.add(Conv2D(filters=4, kernel_size=kernel_size, activation=activation, padding=padding))
+    model.add(BatchNormalization())
+    model.add(Conv2D(filters=2, kernel_size=kernel_size, activation=activation, padding=padding))
+    model.add(BatchNormalization())
+    model.add(Conv2D(filters=2, kernel_size=kernel_size, activation=activation, padding=padding))
+    model.add(BatchNormalization())
+    model.add(Conv2D(filters=1, kernel_size=(3, 15), activation='linear', padding="valid"))
     model.add(Flatten())
-    model.add(Dense(2*out_shape[0], activation=activation_dense))
-    model.add(Dropout(dropout))
-    model.add(Dense(out_shape[0], activation=activation_dense))
-    model.add(Dense(out_shape[0], activation='linear'))
-    #model = multi_gpu_model(model, gpus=2)
+    # model.add(Dense(2*out_shape[0], activation=activation_dense))
+    # model.add(Dropout(dropout))
+    # model.add(Dense(out_shape[0], activation=activation_dense))
+    # model.add(Dense(out_shape[0], activation='linear'))
+    # model = multi_gpu_model(model, gpus=2)
     model.compile(loss=tv_loss,
                   optimizer=keras.optimizers.Nadam(),
                   metrics=['accuracy'])
@@ -578,14 +610,14 @@ def train_model(prefix="single", X_scaled=None, T_scaled=None, weights=None):
     # Split the data
     X_t, X_test, T_t, T_test = train_test_split(X_scaled, T_scaled, test_size=0.1, shuffle=False)
     X_test_train, X_test_test, T_test_train, T_test_test = train_test_split(X_test, T_test, test_size=0.5, shuffle=False)
-    X_train, X_valid, T_train, T_valid = train_test_split(X_t, T_t, test_size=0.2, shuffle=True)
+    X_train, X_valid, T_train, T_valid = train_test_split(X_t, T_t, test_size=0.2, shuffle=False)
     
     X_train = np.concatenate((X_train, X_test_train), axis=0)
     T_train = np.concatenate((T_train, T_test_train), axis=0)
     print(np.shape(X_valid))
     
     # TRAINING
-    batch_size = 128
+    batch_size = 64
     steps_per_epoch = len(X_train)//batch_size
     print(f"Batches per epoch = {steps_per_epoch}")
     history = net.fit_generator(batch_generator(X_train, T_train, batch_size=batch_size),
@@ -610,6 +642,11 @@ def train_model(prefix="single", X_scaled=None, T_scaled=None, weights=None):
              fname=f"../latex/Fig/train_{prefix}_true",
              split_line=True,
              vmin=1.5, vmax=5.5)
+    # plt_nb_T(T_test, dx=100, dz=jlogz*dx,
+    #          title="Training |  Testing",
+    #          fname=f"../latex/Fig/train_{prefix}_true",
+    #          split_line=True,
+    #          vmin=1.5, vmax=5.5)
     
     print(net.evaluate(X_test_test, T_test_test))
     
@@ -619,7 +656,12 @@ def train_model(prefix="single", X_scaled=None, T_scaled=None, weights=None):
                  f" |  NRMS={nrms(T_scaler.inverse_transform(net.predict(X_test_test)), T_scaler.inverse_transform(T_test_test)):.1f}",
                  split_line=True,
                  vmin=1.5, vmax=5.5)
-    
+    # plt_nb_T(net.predict(X_test), dx=100, dz=jlogz*dx,
+    #              fname=f"../latex/Fig/train_{prefix}_predicted",
+    #              title=f"NRMS={nrms(net.predict(X_test_train), T_test_train):.1f}  "+
+    #              f" |  NRMS={nrms(net.predict(X_test_test), T_test_test):.1f}",
+    #              split_line=True,
+    #              vmin=1.5, vmax=5.5)
     
     return net, history
 
@@ -661,6 +703,7 @@ def train_ensemble(prefix, X_scaled, T_scaled):
         plt.xlabel("epoch")
         plt.legend()
         plt.savefig(f"../latex/Fig/{prefix}_loss", bbox_inches='tight')
+        plt.grid(True,which="both",ls="-")
         plt.show(block=False)
         plt.pause(1)
         plt.close()
@@ -686,6 +729,18 @@ multiCMP_net_dict, multiCMP_net_best, history_best = train_ensemble("multiCMP", 
 #%% [markdown]
 # # Testing
 #%%
+# singleCMP_net_dict={}
+# net = create_model(np.shape(X_scaled)[1:], np.shape(T_scaled)[1:])
+# net.summary()
+# net.load_weights("singleCMP_weights.h5")
+# singleCMP_net_dict["0"] = net
+
+# multiCMP_net_dict={}
+# netM = create_model(np.shape(X_scaled_multi)[1:], np.shape(T_scaled_multi)[1:])
+# netM.summary()
+# netM.load_weights("multiCMP_weights.h5")
+# multiCMP_net_dict["0"] = netM
+
 def test_on_model(folder="marmvel1D",
                   net_dict=singleCMP_net_dict,
                   prefix="singleCMP",
@@ -732,6 +787,10 @@ def test_on_model(folder="marmvel1D",
     
     nCMP = int(net_dict["0"].input.shape[3])
     X_scaled, T_data_test = make_multi_CMP_inputs(X_scaled, T_data_test, nCMP_max)
+    sample_reveal = nCMP_max+1
+    plt_nb_T(1e3*np.concatenate((np.squeeze(X_scaled[sample_reveal,:,:,-1]), np.flipud(np.squeeze(X_scaled[sample_reveal,:,:,0]))), axis=0),
+        title="CMP first | CMP last", dx=200, dz=1e3*dt*jdt, 
+        origin_in_middle=True, ylabel="Time(s)", fname=f"{fig_path}_X_scaled", cbar_label = "")
     if nCMP == 1:
         X_scaled = X_scaled[:,:,:,nCMP_max//2:nCMP_max//2+1]
     
@@ -747,18 +806,18 @@ def test_on_model(folder="marmvel1D",
         iNet += 1
    
     T_pred = np.mean(T_pred_dict, axis=0)
-    # variance = np.var(T_pred_dict, axis=0)
+    variance = np.var(T_pred_dict, axis=0)
     
     
-    # plt_nb_T(np.sqrt(variance), title="Standard deviation",
-    #          dx=jgx*dx, dz=jlogz*dx,
-    #          fname=f"{fig_path}_inverted_std_dev",
-    #          vmin=0.05, vmax=1)
-    
-    plt_nb_T(T_pred-T_data_test, title="Pred-True",
+    plt_nb_T(np.sqrt(variance), title="Standard deviation",
              dx=jgx*dx, dz=jlogz*dx,
              fname=f"{fig_path}_inverted_std_dev",
-             vmin=-1, vmax=1)
+             vmin=0.05, vmax=1)
+    
+    # plt_nb_T(T_pred-T_data_test, title="Pred-True",
+    #          dx=jgx*dx, dz=jlogz*dx,
+    #          fname=f"{fig_path}_inverted_std_dev",
+    #          vmin=-1, vmax=1)
     
     plt_nb_T(T_pred, title=f"{prefix} estimate, NRMS={nrms(T_pred, T_data_test):.1f}%",
              dx=jgx*dx, dz=jlogz*dx,
@@ -773,7 +832,7 @@ def test_on_model(folder="marmvel1D",
     
     print(np.shape(1e3*T_scaled[sample_reveal-(nCMP+1)//2:sample_reveal+(nCMP-1)//2:nCMP]))
 
-#%%
+#%
 def run_all_tests(net_dict=singleCMP_net_dict, prefix="single", generate_rsf_data_flag=False):
     # Marmousi-based tests    
     test_on_model("marmvel1D", net_dict=net_dict, prefix=prefix, stretch_X=10, generate_rsf_data_flag=generate_rsf_data_flag)
@@ -797,3 +856,5 @@ run_all_tests(net_dict=multiCMP_net_dict, prefix="multiCMP")
 
 #%%
 print(f"Total execution time is {toc(tic_total)}")
+
+# %%

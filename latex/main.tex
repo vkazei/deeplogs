@@ -1,108 +1,80 @@
-<<<<<<< HEAD
 \documentclass[paper,twocolomn]{geophysics}
 %\documentclass[manuscript]{geophysics}
-=======
-%\documentclass[paper,twocolomn]{geophysics}
-\documentclass[manuscript]{geophysics}
->>>>>>> e979cf484bb4664fd83a2f649ef47ea4f19063cd
+
 %\documentclass[manuscript,endfloat]{geophysics}
 \input{myDefs}
 \graphicspath{{./Fig/}}
 
 \begin{document}
 
-\title{Mapping seismic data cubes to vertical velocity profiles by deep learning: \\
-	New full-waveform inversion paradigm?}
+\title{Mapping full seismic waveforms to vertical velocity profiles by deep learning}
 
 \renewcommand{\thefootnote}{\fnsymbol{footnote}} 
 
-<<<<<<< HEAD
-\author{Vladimir Kazei, Oleg Ovcharenko, Pavel Plotnitskii, Daniel Peter, Xiangliang Zhang \& Tariq Alkhalifah}
+\author{Vladimir Kazei, Oleg Ovcharenko, Pavel Plotnitskii, Daniel Peter, Xiangliang~Zhang \& Tariq Alkhalifah}
 \address{
 King Abdullah University of Science and Technology (KAUST), Thuwal, 23955-6900, Saudi Arabia \\
 vladimir.kazei@kaust.edu.sa, oleg.ovcharenko@kaust.edu.sa, pavel.plotnitskii@kaust.edu.sa, \\
 daniel.peter@kaust.edu.sa, xiangliang.zhang@kaust.edu.sa, tariq.alkhalifah@kaust.edu.sa}
-=======
-\author{Vladimir Kazei\footnotemark[1], Oleg Ovcharenko, Pavel Plotnitskii, Daniel Peter, Xiangliang Zhang \& Tariq Alkhalifah}
-\address{
-\footnotemark[1] KAUST, Saudi Arabia}
->>>>>>> e979cf484bb4664fd83a2f649ef47ea4f19063cd
-\date{\today}
+
 
 \footer{submitted to Geophysics}
 \lefthead{Kazei et al.}
 \righthead{\emph{Velocity model building by deep learning}}
 
 \maketitle
-<<<<<<< HEAD
-%\begin{abstract}
-%\end{abstract}
-%\end{document}
-
-\newpage
-\section{abstract}
-=======
 
 \begin{abstract}
->>>>>>> e979cf484bb4664fd83a2f649ef47ea4f19063cd
 	Building realistic and reliable models of the subsurface is the primary goal of seismic imaging.
-	%
-	Full-waveform inversion (FWI) allows us to incorporate realistic physical descriptions of the Earth through modeling to deliver the highest resolution possible.
-	%
-	FWI is a local optimization technique and requires a good initial model to converge to the globally optimal model of the subsurface.
-	%
-	In order to estimate the uncertainty in FWI, several initial models are necessary.
-	%
-	We construct an ensemble of convolutional neural networks (CNN) to build velocity models directly from the data. 
-	%
-	%
-	CNNs are trained to map the seismic data directly into velocity logs. This allows to integrate the well data and to simplify the mapping by using the regularity of active seismic acquisition. 
-	%
-	The main feature of our approach is the usage of neighboring common midpoint (CMP) gathers in the prediction of a log at the central CMP location. This allows us to accommodate larger dips compared to using single CMP gathers. At the same time, we still benefit from the regularity of sampling in seismic exploration.  
-<<<<<<< HEAD
-
-=======
+	Full-waveform inversion (FWI) allows us to incorporate realistic physical descriptions of the Earth’s subsurface through modeling to deliver the high-resolution estimates of subsurface parameters.
+	However, FWI is a local optimization technique and hence requires a good initial model to start. Also, FWI relies on iterative modeling of full-wavefields; therefore, it is computationally expensive.
+	Here we construct an ensemble of convolutional neural networks (CNNs) to build velocity models directly from the data.
+	CNNs are trained to map the seismic data directly into velocity logs. This allows us to integrate well data into the inversion and to simplify the mapping by using the regularity of active seismic acquisition. 
+	The presented approach uses gathers of neighboring common midpoints (CMPs) for the estimation of a vertical velocity log to accommodate larger dips relative to single CMP gathers. At the same time, we still benefit from the regularity of sampling in seismic exploration. 
+	Once the network is trained on a particular data set, similar data sets can be inverted much faster than with conventional FWI.
 \end{abstract}
->>>>>>> e979cf484bb4664fd83a2f649ef47ea4f19063cd
+%\end{document}
+
+%\section{abstract}
+
+
+
+	
+
+
+
 
 %% figure naming convention:
 %(train/test)_(prefix(singleCMP/multiCMP))_{folder(for train: ""=x1,x2,x3:marmvel1D, marmvel1D_distorted,marmvel,overthrust1D,overthrust2D)}_{inverted/true/X_scaled}
 
-<<<<<<< HEAD
-\newpage
-=======
->>>>>>> e979cf484bb4664fd83a2f649ef47ea4f19063cd
+
+%\newpage
 \section{Introduction}
 % what is the problem? FWI needs better starting model
 % why FWI?
-Seismic imaging and inversion are suffering from fundamental ambiguities such as lack of ultra-low frequencies in the data and ultra-long offsets. This lack of critical data results in the well-known gap in the intermediate wavenumber illumination of the subsurface models \citep{claerbout1985, mora1989, sirgue2004, alkhalifahFullmodelWavenumberInversion2016, kazei2016, kazei2018, yao2019extraction}. In most cases, this gap is significant and causes difficulties while building smooth background models. The low frequencies can in principle be acquired together in a long-offset acquisition \citep[e.g.][]{fons2013}, yet that is a very expensive solution to the problem of lack of middle wavenumber information.
+Seismic imaging and inversion suffer from fundamental ambiguities, such as lack of ultra-low frequencies in the data and ultra-long offsets. This lack of critical data results in the well-known gap in the intermediate wavenumber illumination of the subsurface models \citep{claerbout1985, mora1989, sirgue2004, alkhalifahFullmodelWavenumberInversion2016, kazei2016, kazei2018, yao2019extraction}. In most cases, this gap is significant and causes difficulties when building smooth background models. The low frequencies can in principle be acquired together in a long-offset acquisition \citep[e.g.][]{fons2013}, yet that is a very expensive solution to the problem of insufficient middle wavenumber information.
 
 % solutions?
 %\todo{Rephrase the paragraph} %FWI turned out to be so powerful and the problem of the lack of low frequencies in common exploration surveys is so challenging that possible solutions have been under development for decades.
 
 Numerous modifications have been proposed to make FWI work without low-frequency data. %We will split them into three generations.
 % misfits
-Conventional treatment of the lack of low wavenumber information is through changing the data misfit functionals in full-waveform inversion \citep[e.g.][]{luo1991wave, bozdag2011, choi2012, leeuwen2013, sun2019robust}.
-Introducing advanced model regularization techniques into inversion, such as total variation or more generally Sobolev space norms \citep[e.g.][]{esserTotalvariationRegularizationStrategies2016, kazeiSaltbodyInversionMinimum2017, kalita2019regularized, skopintseva2019regularization} is another approach to improve low wavenumber coverage in FWI.
+Conventional treatment of the lack of low-wavenumber information is through changing the data misfit functionals in full-waveform inversion \citep[e.g.][]{luo1991wave, bozdag2011, choi2012, leeuwen2013, sun2019robust}.
+Introducing advanced model regularization techniques, such as total variation or more generally Sobolev space norms \citep[e.g.][]{esserTotalvariationRegularizationStrategies2016, kazeiSaltbodyInversionMinimum2017, kalita2019regularized, skopintseva2019regularization} into the inversion is another approach to improve low wavenumber coverage in FWI.
 % gradients
-Gradient filtering and conditioning \citep{ravaut2004multiscale, alkhalifah2015full, kazei2016, ovcharenko2018, ruan2018global}, is an easier to tune way to achieve similar results in FWI. All the methods listed above are computationally intensive and require parameter tuning.
+Gradient filtering and conditioning \citep{ravaut2004multiscale, alkhalifahFullmodelWavenumberInversion2016, kazei2016, ovcharenko2018, ruan2018global} is easier to tune and achieves similar results in FWI. All the methods listed above are computationally intensive and require parameter tuning.
 
 % deep learning
-Alternatively, low wavenumber information can, to some extent, be inferred directly from the data in form of artificial low frequencies \citep{ovcharenkoNeuralNetworkBased2017, ovcharenkoLowFrequencyDataExtrapolation2018, ovcharenko2019deep, jin2018learn, sunLowFrequencyExtrapolation2018, kazei2019realistically} or low-dimensional models \citep[e.g.][]{polo2018, wu2018inversionnet}. The beauty of deep learning applications in seismic inversion and velocity model building is that while training can be very computationally intensive, the application of the trained neural network is computationally very cheap. \figref{learningParadigm} shows a speculative comparison of different seismic model building tools. With growth of computational power acoustic (anisotropic) FWI became a dominant tool in high-resolution velocity model building \citep[e.g.][]{warner2013}. Anisotropic elastic FWI is still not widely applied on the other hand, due to large computational cost and large null-spaces \citep{kohn2015,kazei2018,kazei2019scattering, podgornovaResolutionVTIAnisotropy2018}. Deep learning applications to multiparameter inversion of seismic data \citep{ivanov2017traveltime, dramsch2019deep, zhang2019regularized} can, in principle, help address the issue of the null space.
-The ability to apply the trained neural network fast can also help to analyze the uncertainty in full-waveform inversion coming from the initial model.
+Alternatively, low wavenumber information can, to some extent, be inferred directly from the data in the form of artificial low frequencies \citep{ovcharenkoNeuralNetworkBased2017, ovcharenkoLowFrequencyDataExtrapolation2018, ovcharenko2019deep, jin2018learn, sunLowFrequencyExtrapolation2018, sun2019extrapolated, kazei2019realistically}. Low-dimensional models \citep[e.g.][]{polo2018, wu2018inversionnet} can be directly inferred from the data. Moreover, for models similar to the training data set (e.g. generated with the same model generator), deep learning can provide resolution comparable to conventional FWI \citep{farris2018tomography, araya2020fast}. A step forward in terms of the estimated model complexity and generalization is, however, not as easy; the labels are images and they are rather big. The beauty of deep learning applications in seismic inversion and velocity model building is that, while training can be very computationally intensive, the application of the trained neural network is computationally very cheap. With the growth of the computational power acoustic, (anisotropic) FWI has become a prominent tool in high-resolution velocity model building \citep[e.g.][]{warner2013}. On the other hand, anisotropic elastic FWI is still not widely applied due to the large computational cost and large null-spaces associated with multiparameter inversion \citep{kohn2015,kazei2018,kazei2019scattering, podgornovaResolutionVTIAnisotropy2018}. Deep learning applications to the multiparameter inversion of seismic data \citep{ivanov2017traveltime, dramsch2019deep, zhang2019regularized} can help address the issue of the null space.
+The ability to apply the trained neural network quickly can also help to analyze the uncertainty in full-waveform inversion coming from the initial model.
 
-\begin{figure}
-	\centering
-	\includegraphics[width=0.9\linewidth]{Fig/learningParadigm}
-	\caption{Deep learning is rather intensive in the training part, however the application of the trained deep neural network (DNN) is nearly instant}
-	\label{fig:learningParadigm}
-\end{figure}
+
 
 % what shall we change?
-Full waveform based methods listed above usually do not exploit the regularity of active seismic exploration sampling. Deep learning, on the other hand, can infer mapping for seismic data into the subsurface at a given location and then reapply it at another location. Most often attempts are made to infer models as a whole \citep{richardson2018seismic, wu2018inversionnet, zhang2018velocitygan, yang2019deep, oye2019velocity}. Here we propose to isolate, relevant to a given location data first and then try to map those into a single vertical velocity log. This set up effectively reduces the dimensionality of the target model space and simplifies the learning procedure. We also expect the learned NN to be more versatile for applications to other models since it corresponds to predicting a log, not a full model.
+The full-waveform-based methods listed above usually do not exploit the regularity of active seismic-exploration sampling. Deep learning can infer mapping for seismic data into the subsurface at a given location, and then reapply it at another location. Most of the attempts are made to infer models as a whole \citep{richardson2018seismic, wu2018inversionnet, zhang2018velocitygan, yang2019deep, oye2019velocity, farris2018tomography, araya2019deep, araya2020fast}. Here we propose utilizing only relevant data from neighboring CMP gathers to estimate a single vertical velocity log at a given location. This setup effectively reduces the dimensionality of the target model space and simplifies the learning procedure. We also expect the learned neural network to be versatile for applications to other models, since it corresponds to estimating a log, not a full model.
 %Other available information in the form of well logs is also not normally utilized. 
 %We will show how to build realistic models for deep learning training from these logs. 
-% and  
+% and  
 %We believe that the computational efficiency of training can be improved by exploiting the regularity of conventional seismic sampling.
 
 % how can we utilize the regularity of seismic sampling?
@@ -155,8 +127,8 @@ Finally, we try to estimate the domain of applicability of the multi-CMP CNN and
 %Finally we perform training and apply the neural network to several data sets.
 %}
 \section{Regularity and relevance of seismic data}
-Equidistant placement of active seismic sources and receivers in active seismic acquisition helps to balance illumination of the subsurface, easier to design and process with conventional stacking procedures. Regular sampling is therefore typical in active seismic exploration. Thus, for the common midpoints (CMPs), in the middle of the region of interest, the set of available offsets typically is the same.
-This means that the setup for predicting the velocity profile can be the same for different CMPs.
+Equidistant placement of active seismic sources and receivers in active seismic acquisition helps to balance illumination of the subsurface, thus making it easier to process with conventional stacking procedures. For this reason, regular sampling is therefore typical in active seismic exploration and, for the common midpoints (CMPs) in the middle of the region of interest, the set of available offsets typically is the same.
+This means that the setup for estimating the velocity profile can be the same for different CMPs.
 The last fact is acknowledged by conventional velocity analysis such as Dix conversion, and advanced stacking procedures \citep{mann1999common}. However, to the best of our knowledge, these procedures rely on significantly simplified assumptions about the subsurface and do not perform well in complicated geological scenarios.
 FWI, on the other hand, can accommodate arbitrary model complexity, yet forgets about the regularity of the sampling and spatial relations between model data are typically handled implicitly. Data-driven inversion will allow us to construct a CNN that maps relevant data to relevant location, and disregards the irrelevant data.  
 
@@ -171,15 +143,16 @@ First, let us examine the potential contribution expected from seismic data to a
 	\label{fig:relevantCMP}
 \end{figure}
 
-Standard velocity analysis uses CMP stacking along hyperbolas to extract velocities and then the stacked data are mapped to depth. This obviously is good enough for horizontally layered media in most cases. More advanced velocity analysis techniques such as common reflection surface  \citep{mann1999common} or multi-focusing \citep{gelchinsky1999multifocusing}, take care of mild horizontal velocity variations and curved reflectors relying on certain assumptions about the subsurface. We take this concept to its extreme by relying on geologically plausible models as realistic scenarios and replacing the conventional stacking analysis with deep learning inference.
+Standard velocity analysis uses CMP stacking along hyperbolas to extract velocities and then the stacked data are mapped to depth. This obviously is good enough for horizontally layered media in most cases. More advanced velocity analysis techniques such as common reflection surface  \citep{mann1999common} or multi-focusing \citep{gelchinsky1999multifocusing}, take care of mild horizontal velocity variations and curved reflectors relying on certain assumptions about the subsurface. We take this concept to its extreme, by relying on geologically plausible models as realistic scenarios and replacing the conventional stacking analysis with deep learning inference.
 
 In particular, we construct CNN that is trained to perform mapping of relevant seismic data cubes to respective velocity logs, shown in \figref{in_out}: 
 \beq \label{eq:mapping}
 u_{obs}(x_{CMP}-\varepsilon:x_{CMP}+\varepsilon, h_{min}:h_{max}, :) \to v(x_{CMP}, :).
 \eeq
-Relevant observed data $u_{obs}(x_{CMP}-\varepsilon:x_{CMP}+\varepsilon, h_{min}:h_{max}, t)$  
-to an estimate of velocity at target location $v(x_{CMP}, z)$, $x_{CMP}$ is the central midpoint,
-$u_{obs}$ is the observed wavefield (acoustic pressure in our case). Here $x_{CMP}$ is the target vertical seismic velocity profile, $h_{min}$ and $h_{max}$ are the shortest and the longest offsets that are usable from the data, $t$ and $z$ stand for time and depth, respectively.
+Relevant observed data $u_{obs}(x_{CMP}-\varepsilon:x_{CMP}+\varepsilon, h_{min}:h_{max}, t)$ is mapped
+to an estimate of vertical seismic velocity profile at the target location $v(x_{CMP}, z)$. Here $x_{CMP}$ is the central midpoint,
+$u_{obs}$ is the observed wavefield (acoustic pressure in our case), 
+$h_{min}$ and $h_{max}$ are the shortest and the longest offsets that are usable from the data, $t$ and $z$ stand for time and depth, respectively.
 
 In the next subsection, we discuss why the mapping defined by \eqrf{mapping} is a candidate for an optimal way to cast seismic exploration inverse problem in the deep learning set up.  
 \begin{figure}[h!]
@@ -217,29 +190,39 @@ Essentially, we combine elastic image transformations commonly used in text reco
 In particular, we empirically generate pseudo-random subsurface models in three steps from the guiding model -- Marmousi benchmark model \citep{marmousi1991}.
 
 \begin{itemize}
-	\item First, we build the geological prior by flipping and replicating the Marmousi model (\figref{shiftsVectors}).
+%	\item First, we build the geological prior by flipping and replicating the Marmousi model (\figref{shiftsVectors}).
+%	
+%	\item Then, we produce a distortion map from a random Gaussian field (\figref{shiftsVectors}) and map vertical coordinates in the prior according to this field \figref{deformedModelNormal}.
+%	%We then stretch coordinates further \figref{deformedModelNormal}.
+%	
+%	\item Finally, we crop a random rectangular patch from the deformed model and resize it back to the size of the target subsurface model (\figref{random_model_example}).
+
+	\item First, we build the geological prior by flipping and replicating the Marmousi model (\figref{rand_model}, a).
 	
-	\item Then, we produce a distortion map from a random Gaussian field (\figref{shiftsVectors}) and map vertical coordinates in the prior according to this field \figref{deformedModelNormal}.
+	\item Then, we produce a distortion map from a random Gaussian field and map vertical coordinates in the prior according to this field (\figref{rand_model}, b).
 	%We then stretch coordinates further \figref{deformedModelNormal}.
 	
-	\item Finally, we crop a random rectangular patch from the deformed model and resize it back to the size of the target subsurface model (\figref{random_model_example}).
+	\item Finally, we crop a random rectangular patch from the deformed model and resize it back to the size of the target subsurface model (\figref{rand_model}, c).
 \end{itemize} 
-
 
 
 %\dplot{stretchMarm}{stretchMarm_strip}{To generate a pseudo-random model with realistic structures we first (a) flip and replicate Marmousi. (a) Full prior model. (b) Crop of the prior with dimensions similar to the original Marmousi II model.}
 
-\dplot{shiftsVectors}{deformedModelNormal}{Generation of random subsurface models. Black arrows show vertical shifts (horizontal component added for better visualization) defined by random Gaussian field and applied to the geological prior -- guiding model. Guiding model before the transformation -- (a) and after the transformation -- (b). The coordinate transformation changes the order of some layers in the model, creates new layers and removes some of the other layers}
+%\dplot{shiftsVectors}{deformedModelNormal}{Generation of random subsurface models. Black arrows show vertical shifts (horizontal component added for better visualization) defined by random Gaussian field and applied to the geological prior -- guiding model. Guiding model before the transformation -- (a) and after the transformation -- (b). The coordinate transformation changes the order of some layers in the model, creates new layers and removes some of the other layers}
+%%Random Gaussian field defines (a) vertical shifts that we apply to the model. (b) deformed model
+%
+%\aplot{random_model_example}{width=\columnwidth}{Five examples of generated pseudo-random model concatenated vertically}
+
+\aplot{rand_model}{width=\columnwidth}{Generation of random subsurface models. Black arrows show vertical shifts (horizontal component added for better visualization) defined by random Gaussian field and applied to the geological prior -- guiding model. Guiding model before the transformation -- (a) and after the transformation -- (b). The coordinate transformation changes the order of some layers in the model, creates new layers and removes some of the other layers. Five examples of generated pseudo-random model concatenated vertically -- (c)}
 %Random Gaussian field defines (a) vertical shifts that we apply to the model. (b) deformed model
 
-\aplot{random_model_example}{width=0.7\columnwidth}{An example of generated pseudo-random model.}
 
-
+%\vspace*{-1em}
 %\paragraph{Generator features}
 The generator described above allows us to generate a set of models, which to some extent mimic the layered geological structure from the Marmousi model. Despite using a specific velocity reference, the generator produces a diverse range of subsurface models, which automatically satisfy the desired range of velocities. The main part of the transformation is local texture vertical repositioning. However, depending on the smoothness of the coordinate transformation, new horizontal layers can be generated and old layers may collapse.
 
 \subsection{Seismic wave propagation}
-There are no principal limitations to the type of wave equation or solver we may use. Yet, a few thousands of shots are necessary to generate statistically significant input for the machine learning. To reduce the computational cost of modeling acoustic 2D \citep{polo2018,ovcharenko2018,ovcharenko2019deep, li2019} or elastic 1D \citep[e.g.][]{zheng2019} media assumptions are typically utilized.
+There are no principal limitations to the type of wave equation or solver we may use. Yet, a few thousands of shots are necessary to generate statistically significant input for the machine learning. To reduce the computational cost of modeling, acoustic 2D \citep{polo2018,ovcharenko2018,ovcharenko2019deep, li2019} or elastic 1D \citep[e.g.][]{zheng2019} media assumptions are typically utilized.
 
 Should the model be horizontally invariant, we can try to reconstruct its elastic layers from a single shot gather \citep{roth1994}, or a single CMP gather \citep{zheng2019}.
 While there is limited applicability of DL models to laterally inhomogeneous models \citep{zheng2019}, to the best of our knowledge, training was performed on vertically variant models to speed up the data generation. Here we utilize conventional finite-difference 2D wave propagation and investigate different options for laterally variant media.
@@ -259,7 +242,7 @@ The general idea of deep learning is to build a mathematical model, which would 
 
 %\subsection{Input and output}
 %	supervised learning
-We map multiple input CMP gathers (\figref{X_muted}) to respective target well-logs. Provided that the inputs and outputs are known, the problem reduces to multivariate regression. Therefore, the problem falls into the supervised learning setup.  
+We map multiple input CMP gathers (\figref{X_raw}) to respective target well-logs. Provided that the inputs and outputs are known, the problem reduces to multivariate regression. Therefore, the problem falls into the supervised learning setup.  
 
 At the training stage, a supervised model attempts to derive a relation, which would link input and target variables for each pair in the training partition of the dataset. Whereas at the inference stage, the model infers target variables when given a sample from the previously unseen test partition of the data.
 
@@ -272,28 +255,33 @@ The target data are seismic velocity profiles, which naturally span a narrow ran
 
 Input seismic data, on the other hand, require more complex geometric spreading correction to enhance the amplitudes of seismic event that carry the most useful information.
 %
-We empirically found that the Min-Max scaler from the Scikit-learn library \citep{scikit-learn}, applied to the set of samples, destroys spatial and temporal continuity in the data and leads to the subsequent poor performance of the neural network. On the other hand, data standardization with StandardScaler (linear scaling to unit variance and zero mean) preserves continuity in the data. After the standardization, we downscale the data with an empirically chosen coefficient of 0.1 and then mute the outliers to fit all the data into the [-1, 1] range (\figref{X_scaled}).
+We empirically found that the Min-Max scaler from the Scikit-learn library \citep{scikit-learn}, applied to the set of samples shifts the mean of the seismic data away from zero as well as destroys spatial and temporal continuity in the data. Altogether this leads to the subsequent poor performance of the neural network. On the other hand, data standardization with StandardScaler (linear scaling to unit variance and zero mean) preserves continuity in the data. After the standardization, we downscale the data with an empirically chosen coefficient of 0.1 and then mute the outliers to fit all the data into the [-1, 1] range (\figref{X_scaled}).
 
-\dplot{X_muted}{X_scaled}{Input seismic data to the network. A raw CMP gather (a) and a scaled version of the same CMP gather (b). We utilize only positive offset as the data are synthetic and due to the reciprocity there is no difference with swapping source and receiver positions.}
+\dplot{X_raw}{X_scaled}{Preprocessing of input data to the network. Raw and preprocessed seismic common-midpoint gathers (a) and (b) respectively. We model the data with 7Hz Ricker wavelet and then bandpass them to 2-4 Hz. The data is then scaled by standard scaler. We utilize only positive offset as the data are synthetic and due to the reciprocity there is no difference with swapping source and receiver positions.}
+%
+%. We utilize only positive offset as the data are synthetic and due to the reciprocity there is no difference with swapping source and receiver positions.}
 
 
 \subsection{Convolutional neural networks (CNN)}
 %   spatial dependency = convolutional
 Regular feed-forward neural networks, such as multilayer perceptron, are suitable for problems with a relatively small size of input data as the number of parameters in them grows exponentially. When the input volume is an image then networks with convolutional layers come into play. Convolutional layers perform convolution of the input volume with a set of filters, which results in a set of feature maps, one corresponding to each filter respectively. The key feature of the convolutional layer is that it admits local connectivity. Meaning that when the filter slides over the input volume, only a small set of neighboring points contribute to a particular point of the feature map. This feature allows such a network to learn spatial patterns and enforce them at the inference stage.
 
+\subsection{The architecture}
 Here, we consider two CNNs with exactly the same architecture, apart from the first layer, which will accept input data of the different shape.
 %
 First, we construct a 2D convolutional neural network that shifts its filters along offset and time for individual CMPs. This neural network takes a single CMP gather as input.
-The second neural network takes multiple CMPs as multiple channels in the first layer and then follows exactly the same architecture as the first neural network (shown in \figref{architecture}).
-The rectified linear unit activation function 
+The second neural network takes multiple CMPs as multiple channels in the first layer and then follows exactly the same architecture as the first neural network (shown in \figref{architecture}). 
+MultiCMP CNN gradually reduces the size of input, similarly to an encoder. Every other layer replicates the previous one and reduces the size of its input twice following the same flow as in AlexNet \citep{krizhevsky2012imagenet} and VGG \citep{simonyan2014very}. The input in our case is a multi-channel image of size $(n_{offsets}, n_{timesteps}, n_{CMPs})$. Since $n_{timesteps} >> n_{offsets}$, it makes sense to consider filters that are stretched along the time axis. 
+
+The exponential linear unit (ELU) activation function 
 \beq
-f(x) = max(x, 0)
+f(x) = max(x, \exp(-|x|) - 1)
 \eeq
-is applied to the output of every layer x but the last one. The last layer features a linear activation function, to fit the output scaled to the range [-1, 1]. This configuration is commonly utilized in DL applications as it presents a computationally cheap way to introduce non-linearity into the network. 
-Finally, we apply 0.1 dropout to every layer in order to regularize the training process and prevent overfitting. 
+is applied to the output of every layer x but the last one. ELU is an upgrade to the rectified linear unit activation that improves on the dead neurons problem \citep{clevert2015fast}. The last layer features a linear activation function, to fit the output scaled to the range [-1, 1]. This configuration  often utilized in DL applications as it presents a computationally cheap way to introduce non-linearity into the network. 
+Finally, we apply batch normalization after every layer in order to regularize the training process and prevent overfitting. \cite{clevert2015fast} observed that the usage of ELU reduces the need for batch normalization, yet we observed that the weights sometimes collapse  without it.
 %\subsection{CNN design}
 
-\aplot{architecture}{width=\linewidth}{Purely convolutional neural architecture allows us to easily scale the input and output data. Maximum pooling layer and layers with strides larger than one provide compression of the data within the neural network. The last layer features large convolutional filter and essentially replaces a fully connected layer.}
+\aplot{architecture}{width=\linewidth}{Purely convolutional neural architecture allows us to easily scale the input and output data. Strides larger than one provide compression of the data within the neural network. The last layer features large convolutional filter and adjusts the output size by using valid padding.}
 
 %	Preprocessing
 %		explain preprocessing
@@ -315,19 +303,42 @@ The goal of training is
 %not learning the input-output relation as a data base or dictionary, but 
 to infer the dependence between input and target data in a way that it can further be applied to other data. Therefore, the performance of the CNN is evaluated throughout the process of training by applying the neural network to so called validation data. Once CNN stops improving its performance on the validation data set, the training stops. The validation data is utilized for monitoring the training process and should not be used for evaluating the model performance.   Thus, a small portion of the whole data is isolated from the training procedure to form the test data set. 
 
-Often the three subsets of the data are determined randomly, yet it is not fair in our case since samples are spatially correlated. If CNN has seen neighboring logs in the training all it learns would be simple interpolation between them. To mitigate this problem in the testing of the neural network performance and in order to be able to examine performance on training samples we split the data set in the following way. We extract the last 10\% of samples and split them into 5\% for testing and 5\% that are always used in training that we perform throughout the paper. These 10\% of the data we later on utilize to visually inspect the fitting for training and testing samples. The rest, 90\% of the data are split according to Pareto principle \citep{dunford2014pareto} into training and validation sets randomly (\figref{T_data_split}).
+Often the three subsets of the data are determined randomly, yet it is not fair in our case since samples are spatially correlated. If CNN has seen neighboring logs in the training all it learns would be simple interpolation between them. To mitigate this problem in the testing of the neural network performance and in order to be able to examine performance on training samples we split the data set in the following way: 77\% for training, 18\% for validation and 5\% for testing. The total number of models generated is 1000 and we observe that using 50 of them is relatively stable for testing.
+%
+%We extract the last 10\% of samples and split them into 5\% for testing and 5\% that are always used in training that we perform throughout the paper. These 10\% of the data we later on utilize to visually inspect the fitting for training and testing samples. The rest, 90\% of the data are split according to Pareto principle \citep{dunford2014pareto} into training and validation sets randomly (\figref{T_data_split}).
+%We split data set into  
+
 
 
 \subsection{Optimization}
-Once the training set is organized we need to choose the optimization strategy. This typically includes an optimization algorithm and its parameters. We use Nadam \citep{dozat2016incorporating} -- adaptive moment estimation (Adam) enhanced by Nesterov accelerated momentum. We empirically find that a batch size of 32 provides high, yet still stable performance over epochs in our case for about 30.000 samples. Nadam provides rapid decrease in the loss function and we notice that the validation loss essentially stops decaying in about 20 epochs for both neural networks  (\figref{singleCMP_loss_Full}). Then the learning rate is decreased to further fit the data. Both DNNs tend to overfit the data, which to some extent is prevented by early stopping. Training takes about 5 seconds per epoch for the single CMP neural network and about 45 seconds for a single epoch for multi CMP neural network. The training time is governed by the large filter sizes in the first layer of the neural networks and larger number of input channels in the case of the multi CMP DNN. Wiener filters commonly used for preprocessing of seismic data before inversion \citep{claerbout1985fundamentals} inspire us to have larger filters in the first layer of the network. 
+Once the training set is organized we need to choose the optimization strategy. This typically includes an optimization algorithm and its parameters. We use Nadam \citep{dozat2016incorporating} -- adaptive moment estimation (Adam) enhanced by Nesterov accelerated momentum. We empirically find that a batch size of 64 provides high, yet still stable performance over epochs in our case for about 57.000 samples. Nadam provides rapid decrease in the loss function and we notice that the validation loss essentially stops decaying in about 20 epochs for both neural networks  (\figref{singleCMP_loss_Full}). Then the learning rate is decreased to further fit the data. Both DNNs tend to overfit the data, which to some extent is prevented by batch normalization and by early stopping on condition of no validation loss decay over seven epochs. Training takes about 60 seconds per epoch for the single CMP neural network and about 120 seconds for a single epoch for multi CMP neural network. Both networks are trained on single RTX Quadro 8000 GPUs. Both networks didn't gain any performance from moving to multi-GPU data-parallel training and we associate this with the relatively small batch size and poor parallelizability of batch normalization layers. Also a larger number of input channels/data per sample in the case of the multi CMP DNN provides an additional constraint to better parallelization performance.
 
-\dplot{singleCMP_loss}{multiCMP_loss}{Loss functions on training and validation partitions of the dataset. Single CMP training (a) and multi-CMP training (b).}
+\dplot{singleCMP_loss}{multiCMP_loss}{Evolution of the loss functions on training and validation partitions of the dataset. Single CMP training (a) and multi-CMP training (b).}
 
 \subsection{Evaluation}
-After training we can visually evaluate the performance of CNNs on the training and testing subsets of the initially generated data. Comparison of training results of single CMP CNN (\figref{train_singleCMP_predicted}), multi-CMP CNN (\figref{train_multiCMP_predicted}) and ground truth (\figref{train_multiCMP_true}) shows that both neural networks fit training data set fairly well, with mildly better fit by the multi-CMP CNN. Also both neural networks seem to work well for the near-surface area in the models up to about 500m depth on testing data set. On the other hand the deeper structures are not that well revealed. Note, however, that taking into account the limited offset and central frequency of the wavelet conventional FWI would also probably fail for the deeper parts. %\todo{Quantitative comparison? Add any numbers}
+We report normalized root mean square discrepancy
+\beq
+\text{NRMS}(V_{estimate}, V_{true}) \equiv \frac{||V_{estimate}-V_{true}||}{||V_{true}||}
+\eeq
+between estimate $V_{estimate}$ and ground truth $V_{true}$ velocities in Table 1. 
+Both neural networks fit training data set fairly well, with mildly better fit by the multi-CMP CNN.
 
-\fplot{T_data_split}{train_singleCMP_predicted}
-{train_multiCMP_predicted}{train_multiCMP_true}{(a) Training set is split into: training, testing and validation parts. (d) Last 10\% of the data set. First 5\% are used in training and the last 5\% are not. (c) and (d) Predicted velocity logs by single CMP data and from multi CMP data.}
+\begin{table}
+    \begin{center}
+	\begin{tabular}{||c | c | c ||}
+		\hline
+		Filter size & multiCMP train/test NRMS & singleCMP train/test NRMS \\ \hline\hline
+		(3, 3)    & 2.3/9.3                  & 4.2/10.4                   \\ \hline
+		(3, 7)    & 1.3/7.3                  & 2.3/9.1                   \\ \hline
+		(3, 11)   & \textbf{1.3/7.1}         & 1.7/8.9                   \\ \hline
+		(3, 15)   & 1.1/7.2                  & \textbf{1.4/8.5}          \\ \hline
+	\end{tabular}
+	\caption{The validation and training quality depending on the filter size. We observe that the filter size of 3 samples in offset and 11 samples in time delivers the best performance on the test data set to multiCMP CNN.}
+	\end{center}
+\end{table}
+
+%\fplot{T_data_split}{train_singleCMP_predicted}
+%{train_multiCMP_predicted}{train_multiCMP_true}{(a) Training set is split into: training, testing and validation parts. (b) Last 10\% of the data set. First 5\% are used in training and the last 5\% are not. (c) and (d) Predicted velocity logs by single CMP data and from multi CMP data.}
 
 \subsection{Reproducibility}
 One of the main features of the neural networks is their stochasticity. There are multiple reasonable mappings that the neural network could learn in a multidimensional regression setting. Leaving the randomness of our training data set out of scope (we fix the seed for reproducibility of the data set) stochasticity of the neural networks comes from several factors: random weight initiation, random training set shuffling, random parallel arithmetic operations order inside the GPU. While the first two factors could in principle be isolated by random seed selection, the third one is very hard to deal with. Apart from that, particular choices of random initial weights should not significantly affect the inversion results.
@@ -335,7 +346,7 @@ One of the main features of the neural networks is their stochasticity. There ar
 Therefore, instead of going for exact numerical reproducibility we try to provide a clue about the randomness of our estimates by training multiple instances of our neural networks on the same data set. In order to keep the computational time within a few hours we take only five instances of each network, which is not enough to get a reasonable uncertainty estimate but it can provide us with some insights into it. In the next section, we test our trained ensembles of five CNNs each.
 
 \section{DL: Applications}
-In most deep learning applications to seismic inverse problems, the models are significantly simplified. Here we go for the full model complexity. The section consists of several synthetic tests and is organized with increasing true model complexity. We start with a pseudo-1D model generated by a horizontal stretching of the guiding model, then by random deformation of that model, which is still for the most part horizontally layered. After that, we apply our inversion to the guiding Marmousi model itself. Then we examine the application to a rescaled crop from the SEAM model. Finally we show applications to Overthrust model and its pseudo-1D derivative. In every case, we apply five trained instances of each (multi-CMP and single-CMP) CNN type. Finally, for each CNN type, we compute the average and standard deviation of the outputs within the respective ensemble.
+In most deep learning applications to seismic inverse problems, the models are significantly simplified. Here we go for the full model complexity. The section consists of several synthetic tests and is organized with increasing true model complexity. We start with a pseudo-1D model generated by a horizontal stretching of the guiding model, then by random deformation of that model, which is still for the most part horizontally layered. After that, we apply our inversion to the guiding Marmousi model itself. Then we examine the application to a rescaled crop from the SEAM model \citep{fehler2011seam}.  Finally we show applications to Overthrust model and its pseudo-1D derivative. In every case, we apply five trained instances of each (multi-CMP and single-CMP) CNN type. Finally, for each CNN type, we compute the average and standard deviation of the outputs within the respective ensemble.
 
 %% figure naming convention:
 %(train/test)_(prefix(singleCMP/multiCMP))_{folder(for train: ""=x1,x2,x3:marmvel1D, marmvel1D_distort,marmvel,overthrust1D,overthrust2D)}_{inverted/true/X_scaled}
@@ -347,13 +358,13 @@ Despite the diversity of pseudo-random subsurface models used for training, thes
 \paragraph{Marmousi 1D}
 \newcommand{\modelFname}{marmvel1D}
 
-The first question that we would like to answer is if the CNN that we trained can fit part of the stretched Marmousi model (\figref{test_singleCMP_\modelFname_true}), yet was not used in training directly. \figref{test_singleCMP_\modelFname_true_Full} shows the results of inversion for synthetic data acquired in such a model. Data in this case are not significantly clipped (\figref{test_multiCMP_\modelFname_X_scaled}) and do not vary significantly between multi-CMP input channels. The input of multi-CMP CNN is largely redundant as the model is essentially 1D. Therefore as expected CNN utilizing single CMP input is performing better (\figref{test_singleCMP_\modelFname_inverted}) than the multi-CMP CNN (\figref{test_multiCMP_\modelFname_inverted}). This fact is also reflected in the standard deviation maps (\figref{test_singleCMP_\modelFname_inverted_std_dev} and \figref{test_multiCMP_\modelFname_inverted_std_dev}). Standard deviation maps describe inconsistency between log predictions by five identical but independent networks. These were trained by starting from different weight initializations and thus converged to slightly distinct final results. The ensemble of CNNs is obviously not sufficient to estimate variance properly, yet we notice that the variance is increasing with depth and is focused around the deeper high-velocity layer location.
+The first question that we would like to answer is if the CNN that we trained can fit part of the stretched Marmousi model (\figref{test_singleCMP_\modelFname_true}), yet was not used in training directly. \figref{test_singleCMP_\modelFname_true_Full} shows the results of inversion for synthetic data acquired in such a model. Data in this case are not significantly clipped (\figref{test_multiCMP_\modelFname_X_scaled}) and do not vary significantly between multi-CMP input channels. The input of multi-CMP CNN is largely redundant as the model is essentially 1D. Therefore as expected CNN utilizing single CMP input is performing better (\figref{test_singleCMP_\modelFname_inverted}) than the multi-CMP CNN (\figref{test_multiCMP_\modelFname_inverted}). This fact is also reflected in the standard deviation maps (\figref{test_singleCMP_\modelFname_inverted_std_dev} and \figref{test_multiCMP_\modelFname_inverted_std_dev}). Standard deviation maps describe inconsistency between log estimations by five identical but independent networks. These were trained by starting from different weight initializations and thus converged to slightly distinct final results. The ensemble of CNNs is obviously not sufficient to estimate variance properly, yet we notice that the variance is increasing with depth and is focused around the deeper high-velocity layer location.
 
 
 \splot{test_singleCMP_\modelFname_true}{test_multiCMP_\modelFname_X_scaled}
 {test_singleCMP_\modelFname_inverted}{test_multiCMP_\modelFname_inverted}
 {test_singleCMP_\modelFname_inverted_std_dev} {test_multiCMP_\modelFname_inverted_std_dev}
-{(a)Test model -- stretched crop from the left edge of the Marmousi model. (b) Rescaled CMP gathers used as the first and the last channels of an input sample of multi-CMP CNN. Average prediction from the ensemble of (b) -- single-CMP CNNs and (c) -- multi-CMP CNN. Standard deviation for the (d) -- single CMP CNN outputs, (e) -- multi-CMP CNN outputs. }
+{(a)Test model -- stretched crop from the left edge of the Marmousi model. (b) Rescaled CMP gathers used as the first and the last channels of an input sample of multi-CMP CNN. Average estimate from the ensemble of (b) -- single-CMP CNNs and (c) -- multi-CMP CNN. Standard deviation for the (d) -- single CMP CNN outputs, (e) -- multi-CMP CNN outputs. }
 
 \paragraph{Distorted Marmousi 1D}
 \renewcommand{\modelFname}{marmvel1D_distort}
@@ -376,17 +387,26 @@ Guiding model -- Marmousi (\figref{test_singleCMP_\modelFname_true}) was not dir
 
 \subsection{Generalization tests on other models}
 
-The properly trained neural network should exhibit generalization capability. Meaning that it should infer meaningful result when applied to unseen data. However, when the new input data is sufficiently different from the training data, the prediction is expected to be inaccurate. In this paragraph, we demonstrate three applications of the network to the data significantly different from the one in training dataset. The first application is for salt-induced SEAM Phase I model, which produces data with strong reflections inconsistent with CMPs produced by a non-contrast training data. Other two examples are for 1D and 2D Overthrust models which resemble the layered structure of subsurface models used for training, however with different contrasts and layer inclination.
+The properly trained neural network should exhibit generalization capability. Meaning that it should infer meaningful result when applied to unseen data. However, when the new input data is sufficiently different from the training data, the estimate is expected to be inaccurate. In this paragraph, we demonstrate three applications of the network to the data significantly different from the one in training dataset. The first application is for salt-induced SEAM Phase I model, which produces data with strong reflections inconsistent with CMPs produced by a non-contrast training data. Other two examples are for 1D and 2D Overthrust models which resemble the layered structure of subsurface models used for training, however with different contrasts and layer inclination.
 
+\paragraph{Marmousi II}
+\renewcommand{\modelFname}{marm2}
+The most straight-forward generalization test is the Marmousi II model (\figref{test_singleCMP_\modelFname_true}). Multi-CMP CNN shows slightly higher NRMS value than in case of the original Marmousi (\figref{test_multiCMP_\modelFname_inverted}) and single-CMP CNN 
+(\figref{test_singleCMP_\modelFname_inverted}) performs even better than on the original Marmousi model, probably due to the increased relative amount of horizontal layers in the Marmousi II. The standard deviation maps (\figref{test_singleCMP_\modelFname_inverted_std_dev} and \figref{test_multiCMP_\modelFname_inverted_std_dev}) suggest that the multi-CMP neural network provides a better estimate in this case. In the shallow part of the model the multi-CMP CNN retrieves the low velocity anomaly, and the single-CMP CNN fails to retrieve that anomaly. \figref{test_singleCMP_\modelFname_inverted_std_dev} however suggests that there should be some error in the estimated velocity model at that location. In the deeper part of the model the variations in the estimates are more focused around the interfaces of reflectors.  
 
-\paragraph{SEAM}
+\splot{test_singleCMP_\modelFname_true}{test_multiCMP_\modelFname_X_scaled}
+{test_singleCMP_\modelFname_inverted}{test_multiCMP_\modelFname_inverted}
+{test_singleCMP_\modelFname_inverted_std_dev} {test_multiCMP_\modelFname_inverted_std_dev}
+{Same as \figref{test_singleCMP_marmvel1D_true_Full}, but for the Marmousi model itself}
+
+\paragraph{SEAM (limitations)}	
 \renewcommand{\modelFname}{seam100}
 SEAM Phase I model features strong reflections inconsistent with CMPs produced by non-contrast training data. This leads to poor standard scaler performance and a lot of data samples get clipped among the deeper reflections (\figref{test_multiCMP_\modelFname_X_scaled}). On the other hand velocities in the very near surface are low and diving waves don't get scaled properly. Some salt-like bodies are generated when we crop from deformed Marmousi model and stretch the crops. All these factors suggest that the training data set would need to be better tailored to local geology, therefore, the inversion recovers only the velocity trends next to the salt and the salt boundary. FWI tailored to salt body inversion \citep[e.g.][]{esserTotalvariationRegularizationStrategies2016,ovcharenko2018,kalita2019regularized} would still benefit from such an estimate used as a starting model.
 
 \splot{test_singleCMP_\modelFname_true}{test_multiCMP_\modelFname_X_scaled}
 {test_singleCMP_\modelFname_inverted}{test_multiCMP_\modelFname_inverted}
 {test_singleCMP_\modelFname_inverted_std_dev} {test_multiCMP_\modelFname_inverted_std_dev}
-{Same as \figref{test_singleCMP_marmvel1D_true_Full}, but for the rescaled crop from the SEAM model. (b) Scaling performs poorly as the training data set didn't include similar models}
+{Same as \figref{test_singleCMP_marmvel1D_true_Full}, but for the rescaled crop from the SEAM model. (b) Scaling performs poorly as the training data set didn't include similar models (e.g. with large lateral contrasts that happen at salt flanks). (e,f) Standard deviation shows that the top part is relyable, but otherwise is not correlated with error in the estimate in this case.}
 
 The central part of the deviation map dominates over the neighboring regions. The CNNs were not given a sufficient amount of data/models featuring salt bodies. Therefore, they are not able to produce logs with large homogeneous high-velocity segments. 
 
@@ -409,7 +429,7 @@ Both CNNs seem to get the top of the model right (\figref{test_singleCMP_\modelF
 {Same as \figref{test_singleCMP_marmvel1D_true_Full}, but for the pseudo-1D model generated from Overthrust model}
 
 \subparagraph{Overthrust 2D}
-\renewcommand{\modelFname}{overthrust2D}
+\renewcommand{\modelFname}{overthrust_test_2D_2}
 Finally, we test both CNNs on a slice from the Overthrust model (\figref{test_singleCMP_\modelFname_true}). The scaled data \figref{test_multiCMP_\modelFname_X_scaled} shows very strong first arrivals and very strong late reflections. Those reflections are most likely multiples and therefore it is very hard to train CNNs to position those properly. Similarly to the case of 1D profile from the Overthrust model, both CNNs seem to get the top of the model right (\figref{test_singleCMP_\modelFname_inverted} and
 \figref{test_multiCMP_\modelFname_inverted}) and fail at the bottom part. According to the standard deviation maps  (\figref{test_singleCMP_\modelFname_inverted_std_dev} and
 \figref{test_multiCMP_\modelFname_inverted_std_dev}) up to the depth of 1.5km we can trust the inversions. However, only some features of the complicated layering are retrieved. We still expect that the inversion results would be useful as a starting point for FWI.
@@ -437,9 +457,9 @@ This paper is a reproducible document. All related code can be found at \\ \href
 
 \section{Conclusion}
 
-Deep learning allowed us to predict the mapping between raw seismic data (multi-CMP gathers) and vertical velocity profiles. This mapping is represented by trained purely convolutional neural networks (CNNs). Namely, we trained CNNs to map the relevant data cubes to 1D velocity profiles, rather than full velocity models. This is a key feature of our method that reduces the complexity of the training process and opens an opportunity for direct usage of the sonic logs for velocity-model building with deep learning.
+Deep learning allowed us to estimate the mapping between raw seismic data (multi-CMP gathers) and vertical velocity profiles. This mapping is represented by trained purely convolutional neural networks (CNNs). Namely, we trained CNNs to map the relevant data cubes to 1D velocity profiles, rather than full velocity models. This is a key feature of our method that reduces the complexity of the training process and opens an opportunity for direct usage of the sonic logs for velocity-model building with deep learning.
  
-Just like full-waveform inversion our method relies on full-waveform modeling and utilizes all available data. Therefore, there are no principal limitations to the complexity of models that can be inverted. Just like in FWI some prior assumptions about the velocity model are necessary to mitigate non-uniqueness in seismic inversion. These assumptions can easily be incorporated into the training set. Every application of conventional FWI requires numerous forward problem solutions in order to perform the model optimization. Every new application of trained neural networks is nearly instant. Therefore, once the network is trained on a data set with particular prior assumptions, similar data sets can be inverted much faster than with conventional FWI, and with higher resolution information.
+Just like full-waveform inversion our method relies on full-waveform modeling and utilizes all available data. Therefore, there are no principal limitations to the complexity of models that can be inverted. Just like in FWI some prior assumptions about the velocity model are necessary to mitigate non-uniqueness in the seismic inversion. These assumptions can easily be incorporated into the training set. Every application of conventional FWI requires numerous forward problem solutions in order to perform the model optimization. Every new application of trained neural networks is nearly instant. Therefore, once the network is trained on a data set with particular prior assumptions, similar data sets can be inverted much faster than with conventional FWI, and with higher resolution information.
 
 
 
@@ -463,11 +483,18 @@ Just like full-waveform inversion our method relies on full-waveform modeling an
 
 \section{ACKNOWLEDGMENTS}
 
-We thank members of the Seismic Modeling and Inversion group (SMI) and the Seismic Wave Analysis Group (SWAG) at KAUST for constructive discussions. We also thank Saudi Aramco for support.
+We thank editors of Geophysics, two anonymous reviewers and Jan Walda from the University of Hamburg for their comments and suggestions that improved the manuscript. We also thank members of the Seismic Modeling and Inversion group (SMI) and the Seismic Wave Analysis Group (SWAG) at KAUST for constructive discussions. We are grateful to Saudi Aramco for support.
 The research reported in this publication was supported by funding from King Abdullah University of Science and Technology (KAUST), Thuwal, 23955-6900, Saudi Arabia.
 %
-\newpage
-
+%\newpage
+%\figref{learningParadigm} shows a speculative comparison of different seismic model building tools.
+%
+%\begin{figure}
+%	\centering
+%	\includegraphics[width=0.9\linewidth]{Fig/learningParadigm}
+%	\caption{Deep learning is rather intensive in the training part, however the application of the trained deep neural network (DNN) is nearly instant }
+%	\label{fig:learningParadigm}
+%\end{figure}
 
 
 %\append{Appendix example}

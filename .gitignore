@@ -1,8 +1,16 @@
+*.idea*
+*.vscode*
+.dropbox
+.ipynb_checkpoints
+archive
+data/__pycache__
+data/overthrust3D*
+
 salt_and_overthrust_models/
 data/check
 data/chk
-data/marm_local.rsfsxbeg=80
 data/shots
+data/data_*
 data/time
 data/trained_net
 data/velocity_logs_from_seismic.py
@@ -10,8 +18,9 @@ data/velocity_logs_from_seismic.slides.html
 data/vp_marmousi-ii.segy
 latex/Fig (copy)/
 latex/backup_structure.tex
-latex/Fig/test_*
-latex/Fig/train_*
+latex/Fig/test*
+latex/Fig/train*
+latex/Fig/s_*
 
 
 ## Core latex/pdflatex auxiliary files:

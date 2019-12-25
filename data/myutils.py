@@ -18,12 +18,12 @@ class _const():
     dx = 50
     dt = 0.005
     T_max = 7
-    central_freq = 3
+    central_freq = 7
     jgx = 2
     jsx = jgx
     jdt = 4
-    sxbeg = 4100//dx
-    gxbeg = 100//dx
+    sxbeg = 5000//dx
+    gxbeg = 1000//dx
     szbeg = 2
     jlogz = 2
     trmodel = "marmvel.hh"
@@ -47,6 +47,8 @@ def np_to_rsf(vel, model_output, d1 = const.dx, d2 = const.dx):
     yy.put('n2',np.shape(vel)[0])
     yy.put('d1',d1)
     yy.put('d2',d2)
+    yy.put('o1',0)
+    yy.put('o2',0)
     yy.write(vel)
     yy.close()
     
@@ -90,7 +92,7 @@ def plt_nb_T(vel, fname="Velocity", title="",
              cbar_label = "(km/s)",
              vmin=None, vmax=None,
              split_line=False,
-             dx=25, dz=25, no_labels=False, origin_in_middle=False):
+             dx=const.dx, dz=const.dx, no_labels=False, origin_in_middle=False):
     plt.figure(figsize=(16,9))
     vel_image = vel[:,:].T
     extent=(0, dx * vel.shape[0] * 1e-3, dz * vel.shape[1] *1e-3, 0)
