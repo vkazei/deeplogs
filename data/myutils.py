@@ -10,7 +10,7 @@ from numpy import linalg
 import m8r as sf
 from scipy.ndimage.filters import gaussian_filter
 from scipy.ndimage.interpolation import map_coordinates
-
+from tensorflow.python.ops.image_ops_impl import _random_flip
 
 class _const():
     """Default settings for modeling and inversion
@@ -32,6 +32,27 @@ class _const():
 const = _const()
 
 #%%
+def tf_random_flip_channels(image, seed=None):
+  """
+  With a 1 in 2 chance, outputs the contents of `image` flipped along the
+  third dimension, which is `channels`.  Otherwise output the image as-is.
+
+  Args:
+    image: 4-D Tensor of shape `[batch, height, width, channels]` or
+           3-D Tensor of shape `[height, width, channels]`.
+    seed: A Python integer. Used to create a random seed. See
+      `tf.set_random_seed`
+      for behavior.
+
+  Returns:
+    A tensor of the same type and shape as `image`.
+
+  Raises:
+    ValueError: if the shape of `image` not supported.
+  """
+  return _random_flip(image, 2, seed, 'random_flip_channels')
+
+
 def nrms(T_pred, T_true):
     return 100*linalg.norm(T_pred-T_true)/linalg.norm(T_true)
 
@@ -138,7 +159,7 @@ def elastic_transform(image, alpha, sigma, random_state_number=None, v_dx=const.
     random_state = np.random.RandomState(random_state_number)
 
     shape = image.shape
-    print(shape)
+    #print(shape)
     
     # with our velocities dx is vertical shift
     dx = gaussian_filter((random_state.rand(*shape) * 2 - 1), (sigma, sigma/10, 1), mode="constant", cval=0) * 4 * alpha
@@ -156,7 +177,7 @@ def elastic_transform(image, alpha, sigma, random_state_number=None, v_dx=const.
     if plot_name != None:
         plt_nb_T(v_dx * np.squeeze(dx[:,:]), fname=f"VerticalShifts_{alpha}", title="Vertical shifts (km)")
         dq_x = 100
-        dq_z = 30
+        dq_z = 17
         M = np.hypot(dy.squeeze()[::dq_x,::dq_z].T, dx.squeeze()[::dq_x,::dq_z].T)
         M = dx.squeeze()[::dq_x,::dq_z].T
         M = np.squeeze(image)[::dq_x,::dq_z].T
