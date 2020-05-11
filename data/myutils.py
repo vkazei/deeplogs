@@ -18,6 +18,7 @@ class _const():
     dx = 50
     dt = 0.005
     T_max = 7
+    nt = int(T_max / dt + 1)
     central_freq = 7
     jgx = 2
     jsx = jgx
@@ -28,6 +29,9 @@ class _const():
     jlogz = 2
     trmodel = "marmvel.hh"
     random_state_number = 314
+    random_model_repeat = 100
+    # upsample for plotting
+    ups_plot = 4
 
 const = _const()
 
@@ -62,7 +66,7 @@ def rsf_to_np(file_name):
     return vel
 
 def np_to_rsf(vel, model_output, d1 = const.dx, d2 = const.dx):
-    """Write 2D numpy array vel to rsf file model_output"""
+    ''' Write 2D numpy array vel to rsf file model_output '''
     yy = sf.Output(model_output)
     yy.put('n1',np.shape(vel)[1])
     yy.put('n2',np.shape(vel)[0])
@@ -108,13 +112,21 @@ class cd:
     def __exit__(self, etype, value, traceback):
         os.chdir(self.savedPath)
 
+def plt_show_proceed(delay=1):
+    plt.show(block=False)
+    plt.pause(delay)
+    plt.close()
+
 def plt_nb_T(vel, fname="Velocity", title="",
              ylabel="Depth (km)", xlabel="Distance (km)",
+             cbar=True,
              cbar_label = "(km/s)",
              vmin=None, vmax=None,
              split_line=False,
-             dx=const.dx, dz=const.dx, no_labels=False, origin_in_middle=False):
-    plt.figure(figsize=(16,9))
+             dx=const.dx, dz=const.dx, no_labels=False, origin_in_middle=False,
+             figsize=(16,9),
+             xticks=True):
+    plt.figure(figsize=figsize)
     vel_image = vel[:,:].T
     extent=(0, dx * vel.shape[0] * 1e-3, dz * vel.shape[1] *1e-3, 0)
     if origin_in_middle:
@@ -124,10 +136,13 @@ def plt_nb_T(vel, fname="Velocity", title="",
     plt.axis("tight")
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
+    if not xticks:
+        plt.xticks([])
     plt.title(title)
     plt.clim(vmin,vmax)
-    cbar = plt.colorbar()
-    cbar.ax.set_ylabel(cbar_label)
+    if cbar==True:
+        cbar = plt.colorbar()
+        cbar.ax.set_ylabel(cbar_label)
     if split_line:
         plt.axvline(x=extent[1]/2, color='black', linewidth=10, linestyle='-')
     
@@ -136,9 +151,7 @@ def plt_nb_T(vel, fname="Velocity", title="",
         plt.axis('off')
         
     plt.savefig(fname, bbox_inches='tight')
-    plt.show(block=False)
-    plt.pause(1)
-    plt.close()
+    plt_show_proceed()
 
 def toc(start_time):
     return (time.time() - start_time)
@@ -184,30 +197,30 @@ def elastic_transform(image, alpha, sigma, random_state_number=None, v_dx=const.
         if 1:
             fig1, ax1 = plt.subplots(figsize=(16,9))
             ax1.set_title('Guiding model')
-            plt.imshow(np.squeeze(image.T), extent=(0, v_dx * dx.shape[0] * 1e-3, v_dx * dx.shape[1] *1e-3, 0))
+            plt.imshow(1e-3*np.squeeze(image.T), extent=(0, v_dx * dx.shape[0] * 1e-3, v_dx * dx.shape[1] *1e-3, 0))
             plt.axis("tight")
             plt.xlabel("Distance (km)")
             plt.ylabel("Depth (km)")
-            #plt.colorbar()
+            plt.colorbar()
             Q = ax1.quiver(
             1e-3*v_dx *y.squeeze()[::dq_x,::dq_z].T, 1e-3*v_dx *x.squeeze()[::dq_x,::dq_z].T, 
             np.abs(1e-4*v_dx*dx.squeeze()[::dq_x,::dq_z].T), 1e-3*v_dx*dx.squeeze()[::dq_x,::dq_z].T, 
             scale_units='xy', scale=1, pivot='tip')
             plt.savefig(f"../latex/Fig/shiftsVectors", bbox_inches='tight')
-            plt.show()
+            plt_show_proceed()
 
         fig1, ax1 = plt.subplots(figsize=(16,9))
         ax1.set_title('Distorted model')
-        plt.imshow(np.squeeze(distorted_image.T), extent=(0, v_dx * dx.shape[0] * 1e-3, v_dx * dx.shape[1] *1e-3, 0))
+        plt.imshow(1e-3*np.squeeze(distorted_image.T), extent=(0, v_dx * dx.shape[0] * 1e-3, v_dx * dx.shape[1] *1e-3, 0))
         plt.axis("tight")
         plt.xlabel("Distance (km)")
         plt.ylabel("Depth (km)")
-        #plt.colorbar()
+        plt.colorbar()
         Q = ax1.quiver(
             1e-3*v_dx *y.squeeze()[::dq_x,::dq_z].T, 1e-3*v_dx *x.squeeze()[::dq_x,::dq_z].T, 
             np.abs(1e-4*v_dx*dx.squeeze()[::dq_x,::dq_z].T), 1e-3*v_dx*dx.squeeze()[::dq_x,::dq_z].T, 
             scale_units='xy', scale=1, pivot='tip')
         plt.savefig(f"../latex/Fig/deformedModel{plot_name}", bbox_inches='tight')
-        plt.show()
+        plt_show_proceed()
 
     return distorted_image
