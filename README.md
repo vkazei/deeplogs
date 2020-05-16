@@ -32,6 +32,11 @@ We generate a set of pseudo-random models for training by cropping and skewing:
 Velocity model is then retrieved as an assembly of depth profiles. Deep learning models are naturally stochastic, so we train as set of five to provide initial uncertainty estimates:
 ![cmp_to_log](latex/Fig/inverted_models_EAGE2020.png)
 
+New training data is generated on-the-fly to save space and boost generalization power.
+Full-waveform inversion can help refine the results.
+![cmp_to_log](latex/Fig/dynamic_overthrust.png)
+
+
 
 
 
