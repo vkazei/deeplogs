@@ -11,6 +11,7 @@ import m8r as sf
 from scipy.ndimage.filters import gaussian_filter
 from scipy.ndimage.interpolation import map_coordinates
 from tensorflow.python.ops.image_ops_impl import _random_flip
+from skimage.transform import resize
 
 class _const():
     """Default settings for modeling and inversion
@@ -32,6 +33,8 @@ class _const():
     random_model_repeat = 100
     # upsample for plotting
     ups_plot = 4
+    # one can stretch training models horizontally 
+    stretch_X_train = 1
 
 const = _const()
 
@@ -56,6 +59,8 @@ def tf_random_flip_channels(image, seed=None):
   """
   return _random_flip(image, 2, seed, 'random_flip_channels')
 
+def upsample(X, upscale):
+    return resize(X, upscale * np.array(X.shape))
 
 def nrms(T_pred, T_true):
     return 100*linalg.norm(T_pred-T_true)/linalg.norm(T_true)

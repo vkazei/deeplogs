@@ -43,28 +43,22 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 #import styler
 from myutils import (cd, cmd, const, 
-                     elastic_transform, plt_nb_T, toc, aug_flip, 
+                     elastic_transform, plt_nb_T, toc, aug_flip, upsample,
                      merge_dict, np_to_rsf, rsf_to_np, nrms, 
                      tf_random_flip_channels)
 
 from myutils import const as c
 
-from generate_data import generate_model, alpha_deform, sigma_deform, generate_all_data
+from generate_data import (generate_model, show_model_generation, 
+                           alpha_deform, sigma_deform, 
+                           generate_all_data, generate_rsf_data)
 
 seed()
 # set up matplotlib
 matplotlib.rc('image', cmap='RdBu_r')
 seaborn.set_context('paper', font_scale=5)
 
-
-
-if __name__== "__main__":
-    CUDA_VISIBLE_DEVICES = sys.argv[1]
-    
-print(CUDA_VISIBLE_DEVICES)
-
 CUDA_VISIBLE_DEVICES = "0"
-
 os.environ["CUDA_VISIBLE_DEVICES"]=CUDA_VISIBLE_DEVICES
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 
@@ -78,10 +72,8 @@ generate_rsf_data_flag = True
 retrain_flag = False #(sys.argv[1] == "--retrain")
 print(f"retrain_flag = {retrain_flag}")
 print(type(retrain_flag))
-stretch_X_train = 1
 
 tic_total = time.time()
-
 #%% [markdown]
 # ## Introduction
 # 
@@ -106,13 +98,9 @@ tic_total = time.time()
 # ## Method
 # 
 # 0) generate a model set
-# 
 # 1) generate seismic data set
-# 
 # 2) build neural network
-# 
 # 3) train neural network
-# 
 # 4) test it on a model that it has not seen
     
 
@@ -122,39 +110,7 @@ tic_total = time.time()
 # we utilize common deep learning image augmentation technique -- elastic transform
 
 #%%
-# show model generation
-def show_model_generation():
-    vel = generate_model(stretch_X=stretch_X_train, training_flag=False, crop_flag=False, distort_flag=False, random_state_number=randint(10000))
-    
-    vel = rsf_to_np("marmvel.hh")
-    plt_nb_T(aug_flip(vel), dx=4, dz=4, fname="../latex/Fig/marm_aug")
-
-    vel = generate_model(stretch_X=stretch_X_train, distort_flag=False, random_state_number=c.random_state_number, show_flag=True)
-    plt_nb_T(vel, fname="../latex/Fig/cropMarm")
-    N = np.shape(vel)
-
-    # vel_example = elastic_transform(np.atleast_3d(vel), alpha_deform//2, sigma_deform, 
-    #                                 random_state_number=c.random_state_number, plot_name="Mild")
-    vel_example = elastic_transform(np.atleast_3d(vel), alpha_deform, sigma_deform, 
-                                    random_state_number=c.random_state_number, plot_name="Normal")
-
-
-    #vel_example = elastic_transform(np.atleast_3d(vel), 
-    #                                alpha_deform, sigma_deform, 
-    #                                random_state_number=random_state_number, 
-    #                                plot_name="Normal")
-    #vel = generate_model(stretch_X=stretch_X_train,random_state_number=c.random_state_number
-    #plt_nb_T(vel, fname="../latex/Fig/cropMarm")
-    N = np.shape(vel)
-    vel_example = generate_model(stretch_X=stretch_X_train, training_flag=True, random_state_number=c.random_state_number, show_flag=True)
-    vel1 = generate_model(stretch_X=stretch_X_train, training_flag=False, random_state_number=randint(10000))
-    vel2 = generate_model(stretch_X=stretch_X_train, training_flag=False, random_state_number=randint(10000))
-    vel3 = generate_model(stretch_X=stretch_X_train, training_flag=False, random_state_number=randint(10000))
-    vel4 = generate_model(stretch_X=stretch_X_train, training_flag=False, random_state_number=randint(10000))
-    plt_nb_T(np.concatenate((vel_example, vel1, vel2, vel3, vel4), axis=1), fname="../latex/Fig/random_model_example")
-
 show_model_generation()
-
 
 #%% [markdown]
 # ## Gaussian fields to generate a coordinate shift for laterally smooth models
@@ -181,12 +137,8 @@ N = np.shape(_vel)
 dt = c.dt
 dx = c.dx
 T_max = c.T_max
-
 nt = c.nt
 print(f"number of time steps = {nt}")
-
-
-
 # check stability
 print(f"you chose dt = {dt}, dt < {dx/np.max(_vel):.4f} should be chosen for stability \n")
 # force stability
@@ -194,14 +146,9 @@ assert dt < dx/np.max(_vel)
 
 # ricker wavelet is roughly bounded by 3f_dominant
 # therefore the sampling rate principally acceptable sampling rate would be
-
 central_freq = c.central_freq
 print(f"dt from Nyquist criterion is {1/(2*3*central_freq)}")
-print(f"dt chosen for CNN is {c.jdt*dt}, which is {(1/(3*central_freq))/(c.jdt*dt)} samples per cycle")  
-
-# from generate_data import generate_all_data
-# if generate_rsf_data_flag:
-#     generate_all_data()
+print(f"dt chosen for CNN is {c.jdt*dt}, which is {(1/(3*central_freq))/(c.jdt*dt)} samples per cycle")
 
 #%% [markdown]
 # ## Read data into numpy and check that the number of logs is the same as number of shots
@@ -235,16 +182,16 @@ def read_rsf_XT(shots_rsf='shots_cmp_full.rsf', logs_rsf='logs_full.rsf', j_log_
 #%%
 while not os.path.exists('new_data_ready'):
     time.sleep(1)
-    print("waiting for new data", end="\r")
+    print("waiting for new data, run python generate_data.py if you didn't", end="\r")
 cmd("rm new_data_ready")
 
 #%%
-
 X, T = read_rsf_XT(shots_rsf='shots_cmp_full.rsf', logs_rsf='logs_full.rsf')
 
 T_multi = view_as_windows(T, (1, nCMP, T.shape[2])).squeeze().reshape((-1, nCMP, T.shape[2]))[:,nCMP//2,:].squeeze()
-T_scaler = StandardScaler().fit(T_multi)
 
+# create scaler for the outputs
+T_scaler = StandardScaler().fit(T_multi)
 scale = np.copy(T_scaler.scale_)
 mean = np.copy(T_scaler.mean_)
 np.save("scale", scale)
@@ -311,7 +258,7 @@ plt_nb_T(1e3*np.reshape(X[0, :21, :, :], (21*X.shape[2], X.shape[3])), vmin=-0.1
 def tv_loss(y_true, y_pred):
     #b, h, w, c = img.shape.as_list()
     a = K.abs(y_pred[:, :-1] - y_pred[:, 1:])
-    tv = 0*K.mean(a, axis=-1)
+    tv = 0.0 * K.mean(a, axis=-1)
     total = tv + K.mean(K.square(y_pred - y_true), axis=-1)
     return total
 
@@ -320,14 +267,13 @@ def random_channel_flip(x):
     return K.in_train_phase(tf_random_flip_channels(x), x)
 
 def R2(y_true, y_pred):
-    SS_res =  K.sum(K.square( y_true-y_pred )) 
-    SS_tot = K.sum(K.square( y_true - K.mean(y_true) ) ) 
-    return ( 1 - SS_res/(SS_tot + K.epsilon()) )
+    SS_res =  K.sum(K.square(y_true-y_pred)) 
+    SS_tot = K.sum(K.square(y_true - K.mean(y_true))) 
+    return (1 - SS_res/(SS_tot + K.epsilon()))
 
 def create_model(inp_shape, out_shape, jlogz=c.jlogz):
     model = keras.models.Sequential()
     activation = 'elu'
-    activation_dense = activation
     padding = 'same'
     kernel_size = (3, 11)
     model.add(Lambda(random_channel_flip, input_shape=inp_shape, output_shape=inp_shape))
@@ -390,8 +336,7 @@ def create_model(inp_shape, out_shape, jlogz=c.jlogz):
     model.add(Conv2D(filters=1, kernel_size=(3, 15), activation='linear', padding="valid"))
     model.add(Flatten())
     model.add(Lambda(lambda x: K.tf.add(K.tf.multiply(x, K.variable(scale.squeeze)), 
-                                        K.variable(mean.squeeze)),
-                     input_shape=(30,)))
+                                        K.variable(mean.squeeze))))
     return model
 
 
@@ -443,9 +388,9 @@ def batch_generator(X, T, T_scaler=T_scaler, batch_size = None):
         #             yield X[batch], T[batch]
         #             batch=[]
         if os.path.exists("new_data_ready"):
-            X_rsf, T_rsf = read_rsf_XT(shots_rsf='shots_cmp_full.rsf', logs_rsf='logs_full.rsf')
             cmd("rm new_data_ready")
-            cmd("ssh glogin.ibex.kaust.edu.sa 'rm ~/log_estimation/data/new_data_ready'")
+            X_rsf, T_rsf = read_rsf_XT(shots_rsf='shots_cmp_full.rsf', logs_rsf='logs_full.rsf')
+            #cmd("ssh glogin.ibex.kaust.edu.sa 'rm ~/log_estimation/data/new_data_ready'")
             X, T = prepare_XT(X_rsf, T_rsf, T_scaler)
             print("new data loaded")
         else:
@@ -492,23 +437,23 @@ def train_model(prefix="multi", X_scaled=X_scaled_multi, T_scaled=T_scaled_multi
     print(f"X validation data size = {np.shape(X_valid)}")
     
     # TRAINING
-    batch_size = 64
+    batch_size = 128
     # we flip every batch, so, going through whole data needs twice as many batches
     steps_per_epoch = len(X_scaled)//batch_size
     print(f"Batch size = {batch_size}, batches per epoch = {steps_per_epoch}")
     history = net.fit_generator(batch_generator(X_scaled, T_scaled, batch_size=batch_size),
-                      validation_data=(X_valid, T_valid),
-                      epochs=100,
-                      verbose=2,
-                      shuffle=True,
-                      max_queue_size=200,
-                      workers=10, 
-                      use_multiprocessing=False,
-                      steps_per_epoch = steps_per_epoch,
-                      callbacks=[model_checkpoint,
-                                 reduce_lr,
-                                 early_stopping])   
-    
+                                validation_data=(X_valid, T_valid),
+                                epochs=100,
+                                verbose=2,
+                                shuffle=True,
+                                max_queue_size=200,
+                                workers=10, 
+                                use_multiprocessing=False,
+                                steps_per_epoch = steps_per_epoch,
+                                callbacks=[model_checkpoint,
+                                reduce_lr,
+                                early_stopping])   
+
     
     print("Optimization Finished!")
         
@@ -548,32 +493,6 @@ def train_ensemble(prefix, X_scaled, T_scaled):
         net_best.save_weights(f"{prefix}_weights.h5")
         save_history(history_best, f"history_{prefix}")
         
-        plt.figure(figsize=(16,9))
-        
-        plt.semilogy(history_best['loss'],'b--', label='Training loss')
-        plt.semilogy(history_best['val_loss'],'r', label='Validation loss')
-        plt.xlabel("epoch")
-        plt.legend()
-        plt.savefig(f"../latex/Fig/{prefix}_loss", bbox_inches='tight')
-        plt.grid(True,which="both",ls="-")
-        plt.show(block=False)
-        plt.pause(1)
-        plt.close()
-        
-        plt.figure(figsize=(16,9))
-        plt.plot(history_best['R2'],'b--', label='Training R2')
-        plt.plot(history_best['val_R2'],'r', label='Validation R2')
-        plt.xlabel("epoch")
-        plt.legend()
-        plt.savefig(f"../latex/Fig/{prefix}_R2", bbox_inches='tight')
-        plt.grid(True,which="both",ls="-")
-        plt.show(block=False)
-        plt.pause(1)
-        plt.close()
-        
-        
-        
-        
     return net_dict, history_dict, net_best, history_best
 
 #singleCMP_net_dict, singleCMP_net_best, history_best = train_ensemble("singleCMP", X_scaled, T_scaled)
@@ -587,11 +506,11 @@ prefix = "multiCMP"
 plt.figure(figsize=(16,9))
 for iNet in history_dict.keys():
     print(iNet)
-    plt.plot(history_dict[iNet]['R2'][:100],'b--')
-    plt.plot(history_dict[iNet]['val_R2'][:100],'r')
+    plt.plot(history_dict[iNet]['R2'][:],'b--')
+    plt.plot(history_dict[iNet]['val_R2'][:],'r')
 
-plt.plot(history_best['R2'][:100],'b--', label='Training R2', linewidth=3)
-plt.plot(history_best['val_R2'][:100],'r', label='Validation R2', linewidth=3)
+plt.plot(history_best['R2'][:],'b--', label='Training R2', linewidth=3)
+plt.plot(history_best['val_R2'][:],'r', label='Validation R2', linewidth=3)
 plt.xlabel("epoch")
 plt.legend()    
 plt.savefig(f"../latex/Fig/{prefix}_R2", bbox_inches='tight')
@@ -603,8 +522,8 @@ plt.close()
 plt.figure(figsize=(16,9))
 for iNet in history_dict.keys():
     print(iNet)
-    plt.plot(history_dict[iNet]['loss'][:100],'b--')
-    plt.plot(history_dict[iNet]['val_loss'][:100],'r')
+    plt.plot(history_dict[iNet]['loss'][:],'b--')
+    plt.plot(history_dict[iNet]['val_loss'][:],'r')
 
 plt.semilogy(history_best['loss'][:100],'b--', label='Training loss', linewidth=3)
 plt.semilogy(history_best['val_loss'][:100],'r', label='Validation loss', linewidth=3)
@@ -656,10 +575,7 @@ plt.close()
 # netM.load_weights("multiCMP_weights.h5")
 # multiCMP_net_dict["0"] = netM
 
-from generate_data import generate_rsf_data, generate_model
 
-def upsample(X, upscale):
-    return resize(X, upscale * np.array(X.shape))
 
 def test_on_model(folder="marmvel1D",
                   net_dict=None,
@@ -748,11 +664,10 @@ def test_on_model(folder="marmvel1D",
              fname=f"{fig_path}_inverted_std_dev",
              vmin=0, vmax=1, figsize=(16,6))
     
-    # plt_nb_T(T_pred-T_test, title="Pred-True",
-    #          dx=jgx*dx, dz=jlogz*dx,
-    #          fname=f"{fig_path}_inverted_std_dev",
-    #          vmin=-1, vmax=1)
-    
+    plt_nb_T(T_pred-T_test, title="Pred-True",
+             dx=jgx*dx, dz=jlogz*dx,
+             fname=f"{fig_path}_inverted_error",
+             vmin=-1, vmax=1)
     
     plt_nb_T(T_pred, title=f"{prefix}, NRMS={nrms(T_pred, T_test):.1f}%",
              dx=jgx*dx/ups_plot, dz=jgx*dx/ups_plot,
@@ -826,3 +741,6 @@ def plot_logs(log_x):
 
 plot_logs(240)
 plot_logs(480)
+
+
+# %%

@@ -146,7 +146,7 @@ def generate_model(model_input=c.trmodel,
     vel = np.squeeze(vel)
     
     if distort_flag:
-        vel_alpha = (0.9+0.2*resize(np.random.rand(5,10), vel.shape))
+        vel_alpha = (0.8+0.4*resize(np.random.rand(5,10), vel.shape))
         #print(vel_alpha)
         vel *= vel_alpha
     # add water
@@ -161,7 +161,27 @@ def generate_model(model_input=c.trmodel,
     return vel
 
 
+def show_model_generation():
+    stretch_X_train = c.stretch_X_train
+    vel = generate_model(stretch_X=stretch_X_train, training_flag=False, crop_flag=False, distort_flag=False, random_state_number=randint(10000))
+    
+    vel = rsf_to_np("marmvel.hh")
+    plt_nb_T(aug_flip(vel), dx=4, dz=4, fname="../latex/Fig/marm_aug")
 
+    vel = generate_model(stretch_X=stretch_X_train, distort_flag=False, random_state_number=c.random_state_number, show_flag=True)
+    plt_nb_T(vel, fname="../latex/Fig/cropMarm")
+    N = np.shape(vel)
+
+    vel_example = elastic_transform(np.atleast_3d(vel), alpha_deform, sigma_deform, 
+                                    random_state_number=c.random_state_number, plot_name="Normal")
+
+    N = np.shape(vel)
+    vel_example = generate_model(stretch_X=stretch_X_train, training_flag=True, random_state_number=c.random_state_number, show_flag=True)
+    vel1 = generate_model(stretch_X=stretch_X_train, training_flag=False, random_state_number=randint(10000))
+    vel2 = generate_model(stretch_X=stretch_X_train, training_flag=False, random_state_number=randint(10000))
+    vel3 = generate_model(stretch_X=stretch_X_train, training_flag=False, random_state_number=randint(10000))
+    vel4 = generate_model(stretch_X=stretch_X_train, training_flag=False, random_state_number=randint(10000))
+    plt_nb_T(np.concatenate((vel_example, vel1, vel2, vel3, vel4), axis=1), fname="../latex/Fig/random_model_example")
 
 # model data and sort into CMPs function
 def generate_rsf_data(model_name="marm.rsf", central_freq=c.central_freq, dt=c.dt, dx=c.dx, 
