@@ -713,7 +713,7 @@ print(f"Total execution time is {toc(tic_total)}")
 #%% PLOT FWI RESULTS
 
 with cd("fwi_overthrust"):
-    cmd("scons")
+    #cmd("scons")
     fwi1 = rsf_to_np("fwi1.rsf")
     fwi2 = rsf_to_np("fwi2.rsf")
     velo = rsf_to_np("vel.rsf")
@@ -725,7 +725,7 @@ with cd("fwi_overthrust"):
     plt_nb_T(velo, title=f"True model", fname="../../latex/Fig/true_overthrust", dx=25, dz=25, figsize=(32,6), vmin=1.5, vmax=4.5)
 
 def plot_logs(log_x):    
-    plt.figure(figsize=(9,12))
+    plt.figure(figsize=(10,12))
     depth = 0.025*np.array(range(120))
     plt.plot(1e-3*fwi2[log_x,:], depth, 'b--', label="DL+FWI", linewidth=3)
     plt.plot( 1e-3*velsm[log_x,:], depth, 'r', label="DL", linewidth=3)
@@ -737,6 +737,7 @@ def plot_logs(log_x):
     plt.title(f"Log at {int(0.025*log_x)} km")
     plt.gca().invert_yaxis()
     plt.legend()
+    plt.axis("tight")
     plt.savefig(f"../latex/Fig/log_{int(0.025*log_x)}")
 
 plot_logs(240)
