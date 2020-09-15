@@ -399,7 +399,7 @@ def batch_generator(X, T, T_scaler=T_scaler, batch_size = None):
         np.random.shuffle(indices)
         print("indices reshuffled") 
         for i in indices:
-            if os.path.exists("new_data_ready"):
+            if os.path.exists("new_data_ready"):                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
                 break
             batch.append(i)
             if len(batch)==batch_size:
@@ -437,13 +437,13 @@ def train_model(prefix="multi", X_scaled=X_scaled_multi, T_scaled=T_scaled_multi
     print(f"X validation data size = {np.shape(X_valid)}")
     
     # TRAINING
-    batch_size = 128
+    batch_size = 64
     # we flip every batch, so, going through whole data needs twice as many batches
     steps_per_epoch = len(X_scaled)//batch_size
     print(f"Batch size = {batch_size}, batches per epoch = {steps_per_epoch}")
     history = net.fit_generator(batch_generator(X_scaled, T_scaled, batch_size=batch_size),
                                 validation_data=(X_valid, T_valid),
-                                epochs=100,
+                                epochs=200,
                                 verbose=2,
                                 shuffle=True,
                                 max_queue_size=200,
@@ -504,10 +504,15 @@ cmd("touch training_finished")
 history_best = load_history("history_multiCMP")
 prefix = "multiCMP"
 plt.figure(figsize=(16,9))
+r2_arr = np.zeros((history_dict.__len__(),2))
 for iNet in history_dict.keys():
-    print(iNet)
+    r2_arr[int(iNet),0] = history_dict[iNet]['R2'][-1]
+    r2_arr[int(iNet),1] = history_dict[iNet]['val_R2'][-1]
+    print(f"netN={iNet}, R2={history_dict[iNet]['R2'][-1]},{history_dict[iNet]['val_R2'][-1]}")
     plt.plot(history_dict[iNet]['R2'][:],'b--')
     plt.plot(history_dict[iNet]['val_R2'][:],'r')
+
+print(f"Average R2={np.mean(r2_arr, 0)}")
 
 plt.plot(history_best['R2'][:],'b--', label='Training R2', linewidth=3)
 plt.plot(history_best['val_R2'][:],'r', label='Validation R2', linewidth=3)
@@ -525,8 +530,8 @@ for iNet in history_dict.keys():
     plt.plot(history_dict[iNet]['loss'][:],'b--')
     plt.plot(history_dict[iNet]['val_loss'][:],'r')
 
-plt.semilogy(history_best['loss'][:100],'b--', label='Training loss', linewidth=3)
-plt.semilogy(history_best['val_loss'][:100],'r', label='Validation loss', linewidth=3)
+plt.semilogy(history_best['loss'][:],'b--', label='Training loss', linewidth=3)
+plt.semilogy(history_best['val_loss'][:],'r', label='Validation loss', linewidth=3)
 plt.xlabel("epoch")
 plt.legend()    
 plt.savefig(f"../latex/Fig/{prefix}_loss", bbox_inches='tight')
@@ -534,6 +539,7 @@ plt.grid(True,which="both",ls="-")
 plt.show(block=False)
 plt.pause(1)
 plt.close()
+
 
 # #%%
 # multiCMP_net_dict={}
@@ -669,7 +675,7 @@ def test_on_model(folder="marmvel1D",
              fname=f"{fig_path}_inverted_error",
              vmin=-1, vmax=1)
     
-    plt_nb_T(T_pred, title=f"{prefix}, NRMS={nrms(T_pred, T_test):.1f}%",
+    plt_nb_T(T_pred, title=f"DL, R2 = {r2_score(T_test.flatten(), T_pred.flatten()):.2f}, NRMS={nrms(T_pred, T_test):.1f}%",
              dx=jgx*dx/ups_plot, dz=jgx*dx/ups_plot,
              vmin=np.min(1e-3*T_test), 
              vmax=np.max(1e-3*T_test),
@@ -680,7 +686,7 @@ def test_on_model(folder="marmvel1D",
              vmin=np.min(1e-3*T_test), 
              vmax=np.max(1e-3*T_test),
              fname=f"{fig_path}_true",
-             title=f"True, R2 = {r2_score(T_test.flatten(), T_pred.flatten()):.2f}",
+             title=f"True model",
              figsize=(16,6))
 
 #%%
@@ -712,24 +718,38 @@ print(f"Total execution time is {toc(tic_total)}")
 
 #%% PLOT FWI RESULTS
 
-with cd("fwi_overthrust"):
-    #cmd("scons")
-    fwi1 = rsf_to_np("fwi1.rsf")
-    fwi2 = rsf_to_np("fwi2.rsf")
-    velo = rsf_to_np("vel.rsf")
-    velsm = rsf_to_np("smvel.rsf")
-    R2o = r2_score(velo.flatten(), fwi2.flatten())
-    fwi2 = resize(fwi2, (fwi2.shape[0], 120))
-    plt_nb_T(fwi2, title=f"DL + FWI, R2={R2o:.2f}, NRMS={nrms(velo,fwi2):.1f}%", fname="../../latex/Fig/fwi_overthrust", dx=25, dz=25, figsize=(32,6), vmin=1.5, vmax=4.5)
-    plt_nb_T(velsm, title=f"DL, R2={r2_score(velo.flatten(),velsm.flatten()):.2f}, NRMS={nrms(velo,velsm):.1f}%", fname="../../latex/Fig/dl_overthrust", dx=25, dz=25, figsize=(32,6), vmin=1.5, vmax=4.5)
-    plt_nb_T(velo, title=f"True model", fname="../../latex/Fig/true_overthrust", dx=25, dz=25, figsize=(32,6), vmin=1.5, vmax=4.5)
+# for folder in ["marm2",
+#                "seam_i_sediments",
+#                "seam100",
+#                "overthrust"]:
+
+for folder in ["overthrust"]:
+    with cd(f"fwi_{folder}"):
+        cmd("scons -j 4")
+        fwi1 = rsf_to_np("fwi2.rsf")
+        fwi2 = rsf_to_np("fwi_shi.rsf")
+        velo = rsf_to_np("vel.rsf")
+        velsm = rsf_to_np("smvel.rsf")
+        R2o = r2_score(velo.flatten(), fwi2.flatten())
+        fwi2 = resize(fwi2, (fwi2.shape[0], 120))
+        fwi1 = resize(fwi1, (fwi2.shape[0], 120))
+        plt_nb_T(fwi2, title=f"DL+MSFWI, R2={R2o:.2f}, NRMS={nrms(velo,fwi2):.1f}%", fname=f"../../latex/Fig/msfwi_{folder}", dx=25, dz=25, figsize=(32,6), vmin=1.5, vmax=4.5)
+        plt_nb_T(velsm, 
+                 title=f"DL, R2={r2_score(velo.flatten(),velsm.flatten()):.2f}, NRMS={nrms(velo,velsm):.1f}%", 
+                 fname=f"../../latex/Fig/dl_{folder}", 
+                 dx=25, dz=25, figsize=(16,6), vmin=1.5, vmax=4.5)
+        plt_nb_T(velo, 
+                 title=f"True model", 
+                 fname=f"../../latex/Fig/true_{folder}", 
+                 dx=25, dz=25, figsize=(16,6), vmin=1.5, vmax=4.5)
 
 def plot_logs(log_x):    
-    plt.figure(figsize=(10,12))
+    plt.figure(figsize=(11,18))
     depth = 0.025*np.array(range(120))
-    plt.plot(1e-3*fwi2[log_x,:], depth, 'b--', label="DL+FWI", linewidth=3)
-    plt.plot( 1e-3*velsm[log_x,:], depth, 'r', label="DL", linewidth=3)
-    plt.plot( 1e-3*velo[log_x,:], depth, 'black', label="True", linewidth=4)
+    plt.plot( 1e-3*velsm[log_x,:], depth, 'r', label="DL", linewidth=6)
+    plt.plot(1e-3*fwi1[log_x,:], depth, 'b--', label="DL+FWI", linewidth=6)
+    plt.plot(1e-3*fwi2[log_x,:], depth, 'bo', label="+MSFWI", markersize=15)
+    plt.plot( 1e-3*velo[log_x,:], depth, 'black', label="True", linewidth=8, alpha=0.6)
     plt.ylabel("Depth (km)")
     plt.xlabel("Velocity (km/s)")
     plt.xlim((1.5, 4.5))
@@ -741,6 +761,7 @@ def plot_logs(log_x):
     plt.savefig(f"../latex/Fig/log_{int(0.025*log_x)}")
 
 plot_logs(240)
+plot_logs(400)
 plot_logs(480)
 
 

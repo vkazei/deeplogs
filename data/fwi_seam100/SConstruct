@@ -1,18 +1,11 @@
-env = Environment(CUDA_VISIBLE_DEVICES="2")
 from rsf.proj import *
-import os
-os.environ["CUDA_VISIBLE_DEVICES"]="2"
+
 acquisition = '''
-				sfgenshots csdgather=n fm=5 amp=1 dt=0.0025 ns=30 ng=780 nt=1000
-				sxbeg=4 szbeg=4 jsx=26 jsz=0 gxbeg=10 gzbeg=4 jgx=1 jgz=0
+				sfgenshots csdgather=n fm=5 amp=1 dt=0.003 ns=60 ng=1340 nt=2200
+				sxbeg=4 szbeg=4 jsx=21 jsz=0 gxbeg=0 gzbeg=4 jgx=1 jgz=0
 			  '''
 
-acquisition_hi = acquisition.replace("fm=5", "fm=5").replace("nt=1000","nt=2200")
-#.replace("jsx=26", "jsx=13").replace("ns=30","ns=61")
-
-os.system("export CUDA_VISIBLE_DEVICES=2")
-
-Flow('vel','../overthrust_test_2D_2/logs_test_m.rsf',
+Flow('vel','../seam100/logs_test_m.rsf',
 	'''
 	dd form=native | 
      	put label1=Depth  unit1=m label2=Lateral unit2=m
@@ -23,7 +16,7 @@ Plot('vel',
 	barunit="m/s"
 	''')
 
-Flow('shots','vel', acquisition.replace("nt=1000","nt=1100"))
+Flow('shots','vel', acquisition)
 Plot('shots','grey color=g title=shot label2= unit2=',view=0)
 
 
@@ -33,13 +26,12 @@ Plot('shot17','shots','window n3=1 f3=17| grey color=g title=shot17 label2=Later
 Result('shotsnap','shot4 shot11 shot17','SideBySideAniso')
 
 # smoothed velocity model   
-#Flow('smvel','vel','smooth repeat=10 rect1=2 rect2=40')
+#Flow('smvel','vel','smooth repeat=10 rect1=10 rect2=40')
 
-Flow('smvel','../overthrust_test_2D_2/logs_pred.rsf',
+Flow('smvel','../seam100/logs_pred.rsf',
 	'''
 	dd form=native | 
-    put label1=Depth  unit1=m label2=Lateral unit2=m |
-    smooth repeat=1 rect1=1 rect2=10  
+     	put label1=Depth  unit1=m label2=Lateral unit2=m
 	''')
 Plot('smvel',
      '''
@@ -48,52 +40,27 @@ Plot('smvel',
 	screenratio=0.45 
      ''' )
 
-Result('marm','vel smvel','TwoRows', view=0)
+Result('marm','vel smvel','TwoRows')
 
 # use the over-smoothed model as initial model for FWI
 Flow('vsnaps0 grads0 objs0 illums0','smvel shots',
 	'''
 	sfgpufwi shots=${SOURCES[1]} grads=${TARGETS[1]} objs=${TARGETS[2]}
-	illums=${TARGETS[3]} niter=100 precon=y rbell=2
+	illums=${TARGETS[3]} niter=65 precon=n rbell=100
 	''')
 
 Flow('smvel1','vsnaps0',
      '''
-     sfwindow f3=99 n3=1
+     sfwindow f3=63 n3=1
      ''')
 
-Flow('shots1','vel', acquisition.replace("sxbeg=4","sxbeg=17").replace("nt=1000","nt=1500"))
+Flow('shots1', 'vel', acquisition)
 
 Flow('vsnaps grads objs illums','smvel1 shots1',
 	'''
 	sfgpufwi shots=${SOURCES[1]} grads=${TARGETS[1]} objs=${TARGETS[2]}
-	illums=${TARGETS[3]} niter=100 precon=y rbell=2
+	illums=${TARGETS[3]} niter=300 precon=n rbell=1
 	''')
-
-Flow('smvel_hi','vsnaps',
-     '''
-     sfwindow f3=99 n3=1
-     ''')
-
-Flow('shots_hi','vel', acquisition_hi)
-Flow('vsnaps_hi grads_hi objs_hi illums_hi','smvel_hi shots_hi',
-	'''
-	sfgpufwi shots=${SOURCES[1]} grads=${TARGETS[1]} objs=${TARGETS[2]}
-	illums=${TARGETS[3]} niter=100 precon=y rbell=2
-	''')
-
-Flow('smvel_shi','vsnaps_hi',
-     '''
-     sfwindow f3=99 n3=1
-     ''')
-
-Flow('shots_shi','vel', acquisition_hi.replace("fm=5", "fm=7").replace("nt=2200","nt=3000"))
-Flow('vsnaps_shi grads_shi objs_shi illums_shi','smvel_shi shots_shi',
-	'''
-	sfgpufwi shots=${SOURCES[1]} grads=${TARGETS[1]} objs=${TARGETS[2]}
-	illums=${TARGETS[3]} niter=100 precon=y rbell=2
-	''')
-
 Result('vsnaps',
 	'''
 	grey title="Updated velocity" allpos=y color=j pclip=100 
@@ -111,7 +78,7 @@ Plot('vsnap16','vsnaps',
 	''')
 Flow('fwi1', 'vsnaps0',
      '''
-     window n3=1 f3=19
+     window n3=1 f3=63
      ''')
 Plot('fwi1', 
 	'''
@@ -120,19 +87,8 @@ Plot('fwi1',
 	''')
 Flow('fwi2', 'vsnaps',
      '''
-     window n3=1 f3=99
+     window n3=1 f3=74
      ''')
-
-Flow('fwi_hi', 'vsnaps_hi',
-     '''
-     window n3=1 f3=99
-     ''')
-
-Flow('fwi_shi', 'vsnaps_shi',
-     '''
-     window n3=1 f3=99
-     ''')
-
 Plot('fwi2', 
 	'''
 	grey color=j mean=y title="precon. FWI" scalebar=y bartype=v barlabel="V" 
